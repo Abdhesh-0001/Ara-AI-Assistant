@@ -3,7 +3,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from groq import Groq
-from duckduckgo-search import DDGS
+from duckduckgo_search import DDGS
 
 load_dotenv()
 
@@ -14,12 +14,12 @@ def search_web(query):
     """search the web for current information"""
     try:
      ddgs=DDGS()
-     results=ddgs.text(query,max_results=3)
+     results=ddgs.text(query, max_results=3)
      if results:
-      response="here's what i found:/n/n"
-      for i, result in enumerate(results,1):
-       response +=f"{1},**{result['title']}**/n"
-       response +=f" {result['body']}\n\n"
+      response="here's what I found:/n/n"
+      for i, result in enumerate(results, 1):
+       response +=f"{i},**{result['title']}**/n"
+       response +=f"  {result['body']}\n\n"
       return response
      else:
      return "no search results found."
