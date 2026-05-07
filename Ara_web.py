@@ -3,11 +3,30 @@ import requests
 import os
 from dotenv import load_dotenv
 from groq import Groq
+from duckduckgo-search import DDGS
 
 load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+
+def search_web(query):
+    """search the web for current information"""
+    try:
+     ddgs=DDGS()
+     results=ddgs.text(query,max_results=3)
+     if results:
+      response="here's what i found:/n/n"
+      for i, result in enumerate(results,1):
+       response +=f"{1},**{result['title']}**/n"
+       response +=f" {result['body']}\n\n"
+      return response
+     else:
+     return "no search results found."
+    except:
+     return "couldn't search the web right now."
+    
+     
 
 def get_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
@@ -39,6 +58,13 @@ user_input = st.chat_input("Type your message here...")
 if user_input:
     with st.chat_message("user"):
         st.write(user_input)
+# check if user is asking for current/recent info
+search_keywords=["news","current", "latest", "today", "recent", "2024", "2025", "2026", "what happened"]
+if any(keyword in user_input.lower for keyword in search_keywords):
+    search_result=search_web(user_input)
+    with st.chat_message("assistant"):
+     st.write(search_result)
+    continue
 
     if "weather" in user_input.lower():
         city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
