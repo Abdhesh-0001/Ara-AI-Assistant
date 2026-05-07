@@ -22,7 +22,7 @@ def search_web(query):
        response +=f"  {result['body']}\n\n"
       return response
      else:
-     return "no search results found."
+      return "no search results found."
     except:
      return "couldn't search the web right now."
     
