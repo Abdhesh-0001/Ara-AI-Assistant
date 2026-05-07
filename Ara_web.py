@@ -10,21 +10,24 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
+
+
 def search_web(query):
-    """search the web for current information"""
+    """Search the web for current information"""
     try:
-     ddgs=DDGS()
-     results=ddgs.text(query, max_results=3)
-     if results:
-      response="here's what I found:/n/n"
-      for i, result in enumerate(results, 1):
-       response +=f"{i},**{result['title']}**/n"
-       response +=f"  {result['body']}\n\n"
-      return response
-     else:
-      return "no search results found."
+        ddgs = DDGS()
+        results = ddgs.text(query, max_results=3)
+        
+        if results:
+            response = "Here's what I found:\n\n"
+            for i, result in enumerate(results, 1):
+                response += f"{i}. **{result['title']}**\n"
+                response += f"   {result['body']}\n\n"
+            return response
+        else:
+            return "No search results found."
     except:
-     return "couldn't search the web right now."
+        return "Could not search the web right now."
     
      
 
@@ -58,12 +61,12 @@ user_input = st.chat_input("Type your message here...")
 if user_input:
     with st.chat_message("user"):
         st.write(user_input)
-# check if user is asking for current/recent info
-search_keywords=["news","current", "latest", "today", "recent", "2024", "2025", "2026", "what happened"]
-if any(keyword in user_input.lower for keyword in search_keywords):
-    search_result=search_web(user_input)
+# Check if user is asking for current/recent info
+search_keywords = ["news", "current", "latest", "today", "recent", "2024", "2025", "what happened"]
+if any(keyword in user_input.lower() for keyword in search_keywords):
+    search_result = search_web(user_input)
     with st.chat_message("assistant"):
-     st.write(search_result)
+        st.write(search_result)
     continue
 
     if "weather" in user_input.lower():
