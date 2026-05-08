@@ -14,25 +14,23 @@ WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 def search_web(query):
     """Search the web for current information"""
-    
     try:
-        with DDGS() as ddgs:
-            results = list(ddgs.text(query, max_results=3))
-
-        if results:
-            response = "Here's what I found:\n\n"
-
+        from duckduckgo_search import DDGS
+        ddgs = DDGS()
+        results = ddgs.text(query, max_results=5)
+        
+        if results and len(results) > 0:
+            response = "📰 **Latest Information Found:**\n\n"
             for i, result in enumerate(results, 1):
-                response += f"{i}. {result['title']}\n"
-                response += f"{result['body']}\n\n"
-
+                title = result.get('title', 'No title')
+                body = result.get('body', 'No content')
+                response += f"**{i}. {title}**\n"
+                response += f"{body}\n\n"
             return response
-
         else:
-            return "No search results found."
-
+            return "❌ Could not find information. Try a different search."
     except Exception as e:
-        return f"Web search error: {str(e)}"
+        return f"⚠️ Search error: {str(e)}"
     
      
 
@@ -67,12 +65,15 @@ if user_input:
     with st.chat_message("user"):
         st.write(user_input)
 
-    # check if user is asking for current\recent info
-    search_keywords=["news", "current", "latest", "today", "recent", "2024", "2025", "what happened"]
+    # Search keywords that trigger web search
+    search_keywords = ["news", "current", "latest", "today", "recent", "2024", "2025", "what happened", "covid", "election"]
+
     if any(keyword in user_input.lower() for keyword in search_keywords):
-        search_result=search_web(user_input)
+        search_result = search_web(user_input)
         with st.chat_message("assistant"):
             st.write(search_result)
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        st.session_state.messages.append({"role": "assistant", "content": search_result})
     
 
     if "weather" in user_input.lower():
