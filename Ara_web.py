@@ -67,7 +67,7 @@ if user_input:
         search_result=search_web(user_input)
         with st.chat_message("assistant"):
             st.write(search_result)
-        continue
+        Continue
     
 
     if "weather" in user_input.lower():
