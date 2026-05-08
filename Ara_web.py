@@ -14,20 +14,25 @@ WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 def search_web(query):
     """Search the web for current information"""
+    
     try:
-        ddgs = DDGS()
-        results = ddgs.text(query, max_results=3)
-        
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query, max_results=3))
+
         if results:
             response = "Here's what I found:\n\n"
+
             for i, result in enumerate(results, 1):
-                response += f"{i}. **{result['title']}**\n"
-                response += f"   {result['body']}\n\n"
+                response += f"{i}. {result['title']}\n"
+                response += f"{result['body']}\n\n"
+
             return response
+
         else:
             return "No search results found."
-    except:
-        return "Could not search the web right now."
+
+    except Exception as e:
+        return f"Web search error: {str(e)}"
     
      
 
