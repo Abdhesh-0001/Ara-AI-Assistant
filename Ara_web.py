@@ -61,13 +61,14 @@ user_input = st.chat_input("Type your message here...")
 if user_input:
     with st.chat_message("user"):
         st.write(user_input)
-# Check if user is asking for current/recent info
-search_keywords = ["news", "current", "latest", "today", "recent", "2024", "2025", "what happened"]
-if any(keyword in user_input.lower() for keyword in search_keywords):
-    search_result = search_web(user_input)
-    with st.chat_message("assistant"):
-        st.write(search_result)
-    continue
+    # check if user is asking for current\recent info
+    search_keywords=["news", "current", "latest", "today", "recent", "2024", "2025", "2026", "what happened"]
+    if any(keyword in user_input.lower() for keyword in search_keywords):
+        search_result=search_web(user_input)
+        with st.chat_message("assistant"):
+            st.write(search_result)
+        Continue
+    
 
     if "weather" in user_input.lower():
         city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
