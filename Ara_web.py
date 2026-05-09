@@ -71,7 +71,7 @@ if user_input:
 
     search_result = search_web(user_input)
 
-    prompt = f"""
+    "content": f"""
     User question:
     {user_input}
 
