@@ -17,7 +17,7 @@ def search_web(query):
     try:
         from duckduckgo_search import DDGS
         ddgs = DDGS()
-        results = ddgs.text(query, max_results=5)
+        results = list(ddgs.text(query, max_results=5
         
         if results and len(results) > 0:
             response = "📰 **Latest Information Found:**\n\n"
@@ -68,12 +68,24 @@ if user_input:
     # Search keywords that trigger web search
     search_keywords = ["news", "current", "latest", "today", "recent", "2024", "2025", "what happened", "covid", "election"]
 
-    if any(keyword in user_input.lower() for keyword in search_keywords):
-        search_result = search_web(user_input)
-        with st.chat_message("assistant"):
-            st.write(search_result)
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        st.session_state.messages.append({"role": "assistant", "content": search_result})
+    search_result = search_web(user_input)
+
+    prompt = f"""
+    User question:
+    {user_input}
+
+    Latest web search results:
+    {search_result}
+
+    Answer using the latest web information.
+    """
+
+    response = client.chat.completions.create(
+    model="llama-3.3-70b-versatile",
+    messages=[
+        {"role": "user", "content": prompt}
+    ]
+)
     
 
     if "weather" in user_input.lower():
