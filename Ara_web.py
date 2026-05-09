@@ -80,17 +80,6 @@ if user_input:
 
     Answer using the latest web information.
     """
-
-    chat_completion =
-    client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        model="llama-3.3-70b-versatile"
-    )
     
 
     if "weather" in user_input.lower():
