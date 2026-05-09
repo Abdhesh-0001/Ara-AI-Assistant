@@ -3,7 +3,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from groq import Groq
-from duckduckgo_search import DDGS
+
 
 load_dotenv()
 
@@ -12,25 +12,26 @@ WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 
 
+from duckduckgo_search import DDGS
+
 def search_web(query):
-    """Search the web for current information"""
     try:
-        from duckduckgo_search import DDGS
         ddgs = DDGS()
         results = list(ddgs.text(query, max_results=5))
-        
-        if results and len(results) > 0:
-            response = "📰 **Latest Information Found:**\n\n"
-            for i, result in enumerate(results, 1):
-                title = result.get('title', 'No title')
-                body = result.get('body', 'No content')
-                response += f"**{i}. {title}**\n"
-                response += f"{body}\n\n"
+
+        if results:
+            response = ""
+
+            for result in results:
+                response += f"{result['title']}\n"
+                response += f"{result['body']}\n\n"
+
             return response
-        else:
-            return "❌ Could not find information. Try a different search."
+
+        return "No results found."
+
     except Exception as e:
-        return f"⚠️ Search error: {str(e)}"
+        return str(e)
     
      
 
@@ -80,12 +81,16 @@ if user_input:
     Answer using the latest web information.
     """
 
-    response = client.chat.completions.create(
-    model="llama-3.3-70b-versatile",
-    messages=[
-        {"role": "user", "content": prompt}
-    ]
-)
+    chat_completion =
+    client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        model="llama-3.3-70b-versatile"
+    )
     
 
     if "weather" in user_input.lower():
