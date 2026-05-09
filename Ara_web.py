@@ -17,7 +17,7 @@ def search_web(query):
     try:
         from duckduckgo_search import DDGS
         ddgs = DDGS()
-        results = list(ddgs.text(query, max_results=5)
+        results = list(ddgs.text(query, max_results=5))
         
         if results and len(results) > 0:
             response = "📰 **Latest Information Found:**\n\n"
