@@ -3,7 +3,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from groq import Groq
-
+from duckduckgo_search import DDGS
 
 load_dotenv()
 
@@ -12,7 +12,7 @@ WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 
 
-from duckduckgo_search import DDGS
+
 
 def search_web(query):
     try:
