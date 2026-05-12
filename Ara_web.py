@@ -15,23 +15,37 @@ WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 
 def search_web(query):
+    """Search the web using a simple method"""
     try:
-        ddgs = DDGS()
-        results = list(ddgs.text(query, max_results=5))
-
-        if results:
-            response = ""
-
-            for result in results:
-                response += f"{result['title']}\n"
-                response += f"{result['body']}\n\n"
-
-            return response
+        # Try using requests to get search results
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
         
-            return "No results found."
-
+        url = f"https://api.duckduckgo.com/?q={query}&format=json&no_html=1&max_results=5"
+        response = requests.get(url, headers=headers, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json()
+            results_text = f"🔍 **Search Results for '{query}':**\n\n"
+            
+            # Get results from RelatedTopics
+            if 'RelatedTopics' in data and data['RelatedTopics']:
+                for i, result in enumerate(data['RelatedTopics'][:3], 1):
+                    if 'Text' in result:
+                        results_text += f"**{i}. {result.get('FirstURL', 'Source')[:50]}**\n"
+                        results_text += f"{result['Text'][:200]}...\n\n"
+                
+                return results_text
+            else:
+                return "Found search page but no detailed results."
+        else:
+            return "Could not connect to search service."
+            
+    except requests.Timeout:
+        return "Search timed out - try a simpler query."
     except Exception as e:
-        return str(e)
+        return f"Search unavailable: {str(e)}"
     
      
 
