@@ -13,7 +13,6 @@ WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 
 
-
 def search_web(query):
     """Search the web using a simple method"""
     try:
