@@ -67,11 +67,10 @@ if user_input:
         st.write(user_input)
 
     # Search keywords that trigger web search
-    search_keywords = ["news", "current", "latest", "today", "recent", "2024", "2025", "cm",  "what happened", "covid", "election"]
 
     search_result = search_web(user_input)
 
-    user_input= f"""
+    enhanced_input= f"""
     User question:
     {user_input}
 
@@ -87,7 +86,7 @@ if user_input:
         city = city if city else "London"
         reply = get_weather(city) + " 🌤️"
     else:
-        st.session_state.messages.append({"role": "user", "content": user_input})
+        st.session_state.messages.append({"role": "user", "content": enhanced_input})
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=st.session_state.messages
