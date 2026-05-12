@@ -27,7 +27,7 @@ def search_web(query):
                 response += f"{result['body']}\n\n"
 
             return response
-        else:
+    else:
             return "No results found."
 
     except Exception as e:
