@@ -28,7 +28,7 @@ def search_web(query):
 
             return response
         
-         return "No results found."
+            return "No results found."
 
     except Exception as e:
         return str(e)
