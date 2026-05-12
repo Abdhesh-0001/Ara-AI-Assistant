@@ -65,28 +65,33 @@ user_input = st.chat_input("Type your message here...")
 if user_input:
     with st.chat_message("user"):
         st.write(user_input)
-
+        city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
+        city = city if city else "London"
+        reply = get_weather(city) + " 🌤️"
     # Search keywords that trigger web search
+    search_keywords = ["news", "current", "latest", "today", "recent", "2024", "2025", "cm", "what happened", "covid", "election", "update"]
 
-    search_result = search_web(user_input)
-
-    enhanced_input= f"""
-    User question:
-    {user_input}
+    # Only search if user asks for current/recent info
+    if any(keyword in user_input.lower() for keyword in search_keywords):
+        search_result = search_web(user_input)
+        full_message = f"""
+    User question: {user_input}
 
     Latest web search results:
     {search_result}
 
-    Answer using the latest web information.
+    Answer using the latest web information provided above.
     """
-    
+    else:
+        full_message = user_input
+        search_result = None
 
     if "weather" in user_input.lower():
         city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
         city = city if city else "London"
         reply = get_weather(city) + " 🌤️"
     else:
-        st.session_state.messages.append({"role": "user", "content": enhanced_input})
+        st.session_state.messages.append({"role": "user", "content": full_message})
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=st.session_state.messages
