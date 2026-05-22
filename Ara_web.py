@@ -81,34 +81,37 @@ if user_input:
         city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
         city = city if city else "London"
         reply = get_weather(city) + " 🌤️"
-    # Search keywords that trigger web search
+# Search keywords that trigger web search
 
-    # Only search if user asks for current/recent info
-        search_result = search_web(user_input)
-        full_message = f"""
-    User question: {user_input}
 
-    Latest web search results:
-    {search_result}
+# Only search if user asks for current/recent info
+if any(keyword in user_input.lower() for keyword in search_keywords):
+    search_result = search_web(user_input)
 
-    Answer using the latest web information provided above.
-    """
-    else:
-        full_message = user_input
-        search_result = None
+    full_message = f"""
+User question: {user_input}
 
-    if "weather" in user_input.lower():
-        city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
-        city = city if city else "London"
-        reply = get_weather(city) + " 🌤️"
-    else:
-        st.session_state.messages.append({"role": "user", "content": full_message})
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=st.session_state.messages
-        )
-        reply = response.choices[0].message.content
-        st.session_state.messages.append({"role": "assistant", "content": reply})
+Latest web search results:
+{search_result}
 
-    with st.chat_message("assistant"):
-        st.write(reply)
+Answer using the latest web information provided above.
+"""
+else:
+    full_message = user_input
+    search_result = None
+
+if "weather" in user_input.lower():
+    city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
+    city = city if city else "London"
+    reply = get_weather(city) + " 🌤️"
+else:
+    st.session_state.messages.append({"role": "user", "content": full_message})
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=st.session_state.messages
+    )
+    reply = response.choices[0].message.content
+    st.session_state.messages.append({"role": "assistant", "content": reply})
+
+with st.chat_message("assistant"):
+    st.write(reply)
