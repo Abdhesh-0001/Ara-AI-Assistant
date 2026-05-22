@@ -87,7 +87,6 @@ if user_input:
 # Only search if user asks for current/recent info
 if any(keyword in user_input.lower() for keyword in search_keywords):
     search_result = search_web(user_input)
-
     full_message = f"""
 User question: {user_input}
 
