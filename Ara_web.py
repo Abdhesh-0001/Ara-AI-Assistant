@@ -83,6 +83,7 @@ if user_input:
         reply = get_weather(city) + " 🌤️"
 # Search keywords that trigger web search
 search_keywords = ["news", "current", "latest", "today", "recent", "2024", "2025", "cm", "what happened", "covid", "election", "update"]
+
 # Only search if user asks for current/recent info
 if any(keyword in user_input.lower() for keyword in search_keywords):
     search_result = search_web(user_input)
