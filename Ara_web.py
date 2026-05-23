@@ -63,36 +63,50 @@ if user_input:
     with st.chat_message("user"):
         st.write(user_input)
 
-    # Search keywords that trigger web search
-    search_keywords = ["news", "current", "latest", "today", "recent", "2024", "2025", "cm", "what happened", "covid", "election", "update"]
-
-    # Only search if user asks for current/recent info
-    if any(keyword in user_input.lower() for keyword in search_keywords):
+    full_message = user_input
+    weather_info = None
+    search_result = None
+    
+    # Check for weather query
+    if "weather" in user_input.lower():
+        city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
+        city = city if city else "London"
+        weather_info = get_weather(city)
+    
+    # Always perform web search for latest information
+    try:
         search_result = search_web(user_input)
+        # Show search results to user
+        with st.chat_message("assistant"):
+            st.write(search_result)
+        # Include search results in AI prompt
         full_message = f"""
 User question: {user_input}
 
 Latest web search results:
 {search_result}
 
+{f'Weather info: {weather_info}' if weather_info else ''}
+
 Answer using the latest web information provided above.
 """
-    else:
-        full_message = user_input
-        search_result = None
+    except Exception as e:
+        st.warning(f"Could not fetch latest info: {str(e)}")
+        if weather_info:
+            full_message = f"""
+User question: {user_input}
 
-    if "weather" in user_input.lower():
-        city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
-        city = city if city else "London"
-        reply = get_weather(city) + " 🌤️"
-    else:
-        st.session_state.messages.append({"role": "user", "content": full_message})
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=st.session_state.messages
-        )
-        reply = response.choices[0].message.content
-        st.session_state.messages.append({"role": "assistant", "content": reply})
+Weather information: {weather_info}
+"""
+    
+    # Send to AI for response
+    st.session_state.messages.append({"role": "user", "content": full_message})
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=st.session_state.messages
+    )
+    reply = response.choices[0].message.content
+    st.session_state.messages.append({"role": "assistant", "content": reply})
 
     with st.chat_message("assistant"):
         st.write(reply)
