@@ -22,13 +22,17 @@ def search_web(query):
         if results:
             response = "🔍 **Latest Search Results:**\n\n"
             for i, result in enumerate(results, 1):
-                response += f"{i}. **{result['title']}**\n"
-                response += f"   {result['body']}\n\n"
+                title = result.get('title', 'No title')
+                body = result.get('body', 'No description')
+                response += f"{i}. **{title}**\n"
+                response += f"   {body}\n\n"
+            print(f"✓ Search successful for: {query}")
             return response
         else:
             return "No search results found for that query."
     except Exception as e:
-        return f"Search error: {str(e)}"
+        print(f"✗ Search error: {str(e)}")
+        return f"Search unavailable: {str(e)}"
     
      
 
@@ -63,50 +67,56 @@ if user_input:
     with st.chat_message("user"):
         st.write(user_input)
 
-    full_message = user_input
-    weather_info = None
     search_result = None
+    weather_info = None
     
-    # Check for weather query
+    # Check for weather query first
     if "weather" in user_input.lower():
-        city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
-        city = city if city else "London"
-        weather_info = get_weather(city)
+        try:
+            city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
+            city = city if city else "London"
+            weather_info = get_weather(city)
+            print(f"Weather fetched: {city}")
+        except Exception as e:
+            print(f"Weather error: {str(e)}")
+            weather_info = None
     
     # Always perform web search for latest information
+    print(f"🔎 Searching web for: {user_input}")
     try:
         search_result = search_web(user_input)
-        # Show search results to user
+        # Show search results to user in a separate message
         with st.chat_message("assistant"):
-            st.write(search_result)
-        # Include search results in AI prompt
-        full_message = f"""
-User question: {user_input}
-
-Latest web search results:
-{search_result}
-
-{f'Weather info: {weather_info}' if weather_info else ''}
-
-Answer using the latest web information provided above.
-"""
+            st.markdown(search_result)
+            print("✓ Search results displayed")
     except Exception as e:
-        st.warning(f"Could not fetch latest info: {str(e)}")
-        if weather_info:
-            full_message = f"""
-User question: {user_input}
-
-Weather information: {weather_info}
-"""
+        error_msg = f"Could not fetch latest info: {str(e)}"
+        st.warning(error_msg)
+        print(f"✗ {error_msg}")
+        search_result = None
+    
+    # Build the message for AI with all available context
+    full_message = user_input
+    if search_result and search_result != "":
+        full_message += f"\n\nLatest web search results:\n{search_result}"
+    if weather_info:
+        full_message += f"\n\nWeather info: {weather_info}"
     
     # Send to AI for response
     st.session_state.messages.append({"role": "user", "content": full_message})
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=st.session_state.messages
-    )
-    reply = response.choices[0].message.content
-    st.session_state.messages.append({"role": "assistant", "content": reply})
-
-    with st.chat_message("assistant"):
-        st.write(reply)
+    
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=st.session_state.messages
+        )
+        reply = response.choices[0].message.content
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        
+        with st.chat_message("assistant"):
+            st.write(reply)
+        print("✓ AI response generated")
+    except Exception as e:
+        error_msg = f"AI error: {str(e)}"
+        st.error(error_msg)
+        print(f"✗ {error_msg}")
