@@ -83,9 +83,9 @@ if user_input:
         joke = random.choice(jokes)
         st.session_state.messages.append({"role": "assistant", "content": joke})
         with st.chat_message("assistant"):
-            st.write(reply)
+            st.write(jokes)
         st.session_state.messages.append({"role": "user", "content": user_input})
-        st.session_state.messages.append({"role": "assistant", "content": reply})
+        st.session_state.messages.append({"role": "assistant", "content": jokes})
         st.stop()
 
     #Dice roller
@@ -100,14 +100,14 @@ if user_input:
                 reply = f"🎲 you rolled a {dice_sides}-sided die and got: **{result}**"
             except:
                 result = random.randint(1, 6)
-                reply = f"🎲 you rolled a 6-sided die and got: **{result}**
+                reply = f"🎲 you rolled a 6-sided die and got: **{result}**"
         else:
             result = random.randint(1, 6)
             reply = f"🎲 you rolled a 6-sided die and got: **{result}**"
             with st.chat_message("assistant"):
                 st.write(reply)
             st.session_state.messages.append({"role": "user", "content": user_input})
-            st.session_state,messages.append({"role": "assistant", "content": reply})
+            st.session_state.messages.append({"role": "assistant", "content": reply})
             st.stop()
     #motivation quotes
     if any(word in user_input.lower() for word in ["motivate", "inspire", "quote", "encourage"]):
@@ -127,7 +127,7 @@ if user_input:
         st.session_state.messages.append({"role": "assistant", "content": quote})
         st.stop()
     #Time and Date
-    if any(word in user_input.lower() for word in ["time", "date", "day",what's the time", "current time"]):
+    if any(word in user_input.lower() for word in ["time", "date", "day", "what's the time", "current time"]):
         from datetime import datetime
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         reply = f"🕒 Current date and time: **{current_time}**"
