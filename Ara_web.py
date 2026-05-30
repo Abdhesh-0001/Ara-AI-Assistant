@@ -122,7 +122,7 @@ if user_input:
         quote = random.choice(quotes)
         st.session_state.messages.append({"role": "assistant", "content": user_input})
         with st.chat_message("assistant"):
-            st.write(reply)
+            st.write(quote)
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "assistant", "content": quote})
         st.stop()
