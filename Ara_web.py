@@ -197,7 +197,7 @@ if user_input:
             model="llama-3.3-70b-versatile",
             messages=st.session_state.messages
         )
-        reply = str(response.choices[0].message.content
+        reply = str(response.choices[0].message.content)
         st.session_state.messages.append({"role": "assistant", "content": reply})
         
         with st.chat_message("assistant"):
