@@ -59,11 +59,12 @@ if "messages" not in st.session_state:
 for msg in st.session_state.messages:
     if msg["role"] != "system":
         with st.chat_message(msg["role"]):
-            st.write(msg["content"])
+            st.write(str(msg["content"]))
 
 user_input = st.chat_input("Type your message here...")
 
 if user_input:
+    user_input = str(user_input).strip()
     with st.chat_message("user"):
         st.write(user_input)
 
@@ -84,8 +85,8 @@ if user_input:
         st.session_state.messages.append({"role": "assistant", "content": joke})
         with st.chat_message("assistant"):
             st.write(jokes)
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        st.session_state.messages.append({"role": "assistant", "content": jokes})
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": str(jokes)})
         st.stop()
 
     #Dice roller
@@ -106,8 +107,8 @@ if user_input:
             reply = f"🎲 you rolled a 6-sided die and got: **{result}**"
             with st.chat_message("assistant"):
                 st.write(reply)
-            st.session_state.messages.append({"role": "user", "content": user_input})
-            st.session_state.messages.append({"role": "assistant", "content": reply})
+            st.session_state.messages.append({"role": "user", "content": str(user_input)})
+            st.session_state.messages.append({"role": "assistant", "content": str(reply)})
             st.stop()
     #motivation quotes
     if any(word in user_input.lower() for word in ["motivate", "inspire", "quote", "encourage"]):
@@ -120,11 +121,11 @@ if user_input:
         ]
         import random
         quote = random.choice(quotes)
-        st.session_state.messages.append({"role": "assistant", "content": user_input})
+        st.session_state.messages.append({"role": "assistant", "content": str(user_input)})
         with st.chat_message("assistant"):
             st.write(quote)
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        st.session_state.messages.append({"role": "assistant", "content": quote})
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": str(quote)})
         st.stop()
     #Time and Date
     if any(word in user_input.lower() for word in ["time", "date", "day", "what's the time", "current time"]):
@@ -134,8 +135,8 @@ if user_input:
 
         with st.chat_message("assistant"):
             st.write(reply)
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        st.session_state.messages.append({"role": "assistant", "content": reply})
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": str(reply)})
         st.stop()
 
     # Fun facts
@@ -152,8 +153,8 @@ if user_input:
 
         with st.chat_message("assistant"):
             st.write(reply)
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        st.session_state.messages.append({"role": "assistant", "content": reply})
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": str(reply)})
         st.stop()
 
     # Check for weather query first
@@ -189,14 +190,14 @@ if user_input:
         full_message += f"\n\nWeather info: {weather_info}"
     
     # Send to AI for response
-    st.session_state.messages.append({"role": "user", "content": full_message})
+    st.session_state.messages.append({"role": "user", "content": str(user_input)})
     
     try:
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=st.session_state.messages
         )
-        reply = response.choices[0].message.content
+        reply = str(response.choices[0].message.content
         st.session_state.messages.append({"role": "assistant", "content": reply})
         
         with st.chat_message("assistant"):
