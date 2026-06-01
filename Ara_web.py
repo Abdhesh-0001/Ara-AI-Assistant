@@ -189,7 +189,7 @@ if user_input:
     if weather_info:
         full_message += f"\n\nWeather info: {weather_info}"
     
-    # Send to AI for response
+    # Send to AI for response (include latest web/search/weather context)
     st.session_state.messages.append({"role": "user", "content": full_message})
     
     try:
