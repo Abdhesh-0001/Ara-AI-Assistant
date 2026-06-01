@@ -69,7 +69,7 @@ if user_input:
         st.write(user_input)
 
     search_result = None
-    weather_info = None
+
     
     # joke feature
     if any(word in user_input.lower() for word in ["joke", "funny", "laugh", "make me laugh"]):
