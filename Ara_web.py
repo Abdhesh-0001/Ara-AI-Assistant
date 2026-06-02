@@ -168,18 +168,25 @@ if user_input:
             print(f"Weather error: {str(e)}")
             weather_info = None
     
-    # Always perform web search for latest information
-    print(f"🔎 Searching web for: {user_input}")
-    try:
-        search_result = search_web(user_input)
-        # Show search results to user in a separate message
-        with st.chat_message("assistant"):
-            st.markdown(search_result)
-            print("✓ Search results displayed")
-    except Exception as e:
-        error_msg = f"Could not fetch latest info: {str(e)}"
-        st.warning(error_msg)
-        print(f"✗ {error_msg}")
+   # Only search for queries that need fresh information
+    search_keywords = ["weather", "latest", "current", "today", "news", "2025", "2026"]
+    search_result = None
+    
+    if any(keyword in user_input.lower() for keyword in search_keywords):
+        print(f"🔎 Searching web for: {user_input}")
+        try:
+            search_result = search_web(user_input)
+            if search_result and "No search results found" not in search_result:
+                with st.chat_message("assistant"):
+                    st.markdown(search_result)
+                print("✓ Search results displayed")
+            else:
+                search_result = None
+        except Exception as e:
+            print(f"Search error: {str(e)}")
+            search_result = None
+    else:
+        print(f"Normal chat - no web search needed")
         search_result = None
     
     # Build the message for AI with all available context
