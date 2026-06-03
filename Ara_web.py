@@ -70,33 +70,33 @@ if user_input:
 
     search_result = None
     weather_info = None
+# Vocabulary helper feature
+    if user_input.lower().startswith("vocab "):
+        word = user_input.lower().replace("vocab ", "").strip()
+        if word:
+            vocab_prompt = f"""Provide vocabulary help for the word: '{word}'
 
-    # Vocabulary helper features
-        if user_input.lower().startswith("vocab "):
-            word = user_input.lower().replace("vocab ", "").strip()
-            if word:
-                vocab_prompt = f"""provide vocabulary help for the word: "{word}"
+Format your response EXACTLY like this:
+📚 **Word:** {word}
+📖 **Meaning:** [clear, simple definition]
+✏️ **Example:** [one example sentence using the word]
 
-                Format your response EXACTLY like this:
-                📚 **Word:** {word}
-                📖 **Meaning:** [clear, simple definition]
-                ✏️ **Example:** [one example sentence using the word]
-                keep it simple and beginner-friendly
-                try:
-                    response = client.chat.completions.create(
-                        model="llama-3.3-70b-versatile",
-                        messages=[{"role": "user","content": vocab_prompt}],
-                        max_tokens=256
-                    )
-                    reply = str(response.choices[0].message.content)
-                    with st.chat_message("assistant"):
-                        st.write(reply)
-                    st.session_state.messages.append({"role": "user", "content": str(user_input)})
-                    st.session_state.messages.append({"role": "assistant", "content": (reply})
-                    st.stop()
-                except Exception as e:
-                    st.error(f"Error:{str(e)}")
-
+Keep it simple and beginner-friendly."""
+            
+            try:
+                response = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "user", "content": vocab_prompt}],
+                    max_tokens=256
+                )
+                reply = str(response.choices[0].message.content)
+                with st.chat_message("assistant"):
+                    st.write(reply)
+                st.session_state.messages.append({"role": "user", "content": str(user_input)})
+                st.session_state.messages.append({"role": "assistant", "content": reply})
+                st.stop()
+            except Exception as e:
+                st.error(f"Error: {str(e)}")
 
     # joke feature
     if any(word in user_input.lower() for word in ["joke", "funny", "laugh", "make me laugh"]):
