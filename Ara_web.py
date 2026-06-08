@@ -53,7 +53,7 @@ st.caption("Ask me anything!")
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "You are a helpful assistant named Ara. You are friendly, smart and kind."}
+        {"role": "system", "content": "You are a helpful assistant named Ara. You are friendly, smart, kind, sexy."}
     ]
 
 for msg in st.session_state.messages:
