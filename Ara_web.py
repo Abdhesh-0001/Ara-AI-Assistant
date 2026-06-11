@@ -70,6 +70,44 @@ if user_input:
 
     search_result = None
     weather_info = None
+# 🎲 Dice roller feature
+    if any(word in user_input.lower() for word in ["roll", "dice", "d6", "d20", "d100"]):
+        import random
+        
+        # Extract dice type from input
+        dice_type_str = user_input.lower().replace("roll", "").replace("dice", "").replace("d", "").strip()
+        
+        # If no dice type specified, default to 6
+        if not dice_type_str or not dice_type_str.isdigit():
+            dice_type_str = "6"
+        
+        try:
+            # Convert string to integer
+            dice_sides = int(dice_type_str)
+            
+            # Check if valid (at least 1 side)
+            if dice_sides < 1:
+                reply = "Please roll a die with at least 1 side!"
+            else:
+                # Generate random number between 1 and dice_sides
+                result = random.randint(1, dice_sides)
+                
+                # Format response
+                reply = f"🎲 You rolled a {dice_sides}-sided die and got: **{result}**"
+        
+        except ValueError:
+            reply = "Please use format: roll d6, roll d20, roll d100, etc."
+        
+        # Display response
+        with st.chat_message("assistant"):
+            st.write(reply)
+        
+        # Save to history
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        
+        st.stop()
+
 # Vocabulary helper feature
     if user_input.lower().startswith("vocab "):
         word = user_input.lower().replace("vocab ", "").strip()
