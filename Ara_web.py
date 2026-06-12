@@ -108,27 +108,27 @@ if user_input:
         
         st.stop()
 # 🎰 Coin flipper feature
-if any(word in user_input.lower() for word in ["flip", "coin"]):
-    import random
+    if any(word in user_input.lower() for word in ["flip", "coin"]):
+     import random
     
-    # Define the two outcomes
-    outcomes = ["HEADS", "TAILS"]
+     # Define the two outcomes
+     outcomes = ["HEADS", "TAILS"]
     
-    # Pick one randomly
-    result = random.choice(outcomes)
+     # Pick one randomly
+     result = random.choice(outcomes)
     
-    # Format response
-    reply = f"🪙 You flipped a coin and got: **{result}**"
+     # Format response
+     reply = f"🪙 You flipped a coin and got: **{result}**"
     
-    # Display response
-    with st.chat_message("assistant"):
+     # Display response
+     with st.chat_message("assistant"):
         st.write(reply)
     
-    # Save to history
-    st.session_state.messages.append({"role": "user", "content": str(user_input)})
-    st.session_state.messages.append({"role": "assistant", "content": reply})
+     # Save to history
+     st.session_state.messages.append({"role": "user", "content": str(user_input)})
+     st.session_state.messages.append({"role": "assistant", "content": reply})
     
-    st.stop()        
+     st.stop()           
 
 # Vocabulary helper feature
     if user_input.lower().startswith("vocab "):
