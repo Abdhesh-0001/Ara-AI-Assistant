@@ -78,7 +78,7 @@ if user_input:
         dice_type_str = user_input.lower().replace("roll", "").replace("dice", "").replace("d", "").strip()
         
         # If no dice type specified, default to 6
-        if not dice_type_str or not dice_type_str.isdigit():
+        if not dice_type_str:
             dice_type_str = "6"
         
         try:
