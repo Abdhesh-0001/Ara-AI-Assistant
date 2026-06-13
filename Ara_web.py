@@ -129,6 +129,63 @@ if user_input:
      st.session_state.messages.append({"role": "assistant", "content": reply})
     
      st.stop()           
+# 💾 Chat History Saver feature
+if any(word in user_input.lower() for word in ["save", "load", "clear"]):
+    import json
+    import os
+    
+    filename = "chat_history.json"
+    
+    # SAVE chat history
+    if "save" in user_input.lower():
+        try:
+            with open(filename, "w") as f:
+                json.dump(st.session_state.messages, f, indent=2)
+            reply = f"✅ Chat history saved to {filename}"
+            print(f"✓ Saved {len(st.session_state.messages)} messages to {filename}")
+        except Exception as e:
+            reply = f"❌ Error saving chat: {str(e)}"
+            print(f"✗ Error saving: {str(e)}")
+    
+    # LOAD chat history
+    elif "load" in user_input.lower():
+        try:
+            if os.path.exists(filename):
+                with open(filename, "r") as f:
+                    st.session_state.messages = json.load(f)
+                reply = f"✅ Chat history loaded! You have {len(st.session_state.messages)} messages"
+                print(f"✓ Loaded {len(st.session_state.messages)} messages from {filename}")
+            else:
+                reply = f"❌ No saved chat found. Start chatting and save with 'save chat'"
+        except Exception as e:
+            reply = f"❌ Error loading chat: {str(e)}"
+            print(f"✗ Error loading: {str(e)}")
+    
+    # CLEAR chat history
+    elif "clear" in user_input.lower():
+        try:
+            if os.path.exists(filename):
+                os.remove(filename)
+                print(f"✓ Deleted {filename}")
+            
+            st.session_state.messages = [
+                {"role": "system", "content": "You are a helpful assistant named Ara. You are friendly, smart and kind."}
+            ]
+            reply = "✅ Chat history cleared!"
+            print("✓ Chat history cleared")
+        except Exception as e:
+            reply = f"❌ Error clearing chat: {str(e)}"
+            print(f"✗ Error clearing: {str(e)}")
+    
+    # Display response
+    with st.chat_message("assistant"):
+        st.write(reply)
+    
+    # Save to current session history (not the file)
+    st.session_state.messages.append({"role": "user", "content": str(user_input)})
+    st.session_state.messages.append({"role": "assistant", "content": reply})
+    
+    st.stop()
 
 # Vocabulary helper feature
     if user_input.lower().startswith("vocab "):
