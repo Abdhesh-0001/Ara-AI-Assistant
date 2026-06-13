@@ -130,13 +130,13 @@ if user_input:
     
      st.stop()           
 # 💾 Chat History Saver feature
-    if any(word in user_input.lower() for word in ["save", "load", "clear"]):
-        import json
-        import os
+if any(word in user_input.lower() for word in ["save", "load", "clear"]):
+    import json
+    import os
     
-        filename = "chat_history.json"
+    filename = "chat_history.json"
     
-        # SAVE chat history
+    # SAVE chat history
     if "save" in user_input.lower():
         try:
             with open(filename, "w") as f:
