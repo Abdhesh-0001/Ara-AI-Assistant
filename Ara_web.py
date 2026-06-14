@@ -130,7 +130,7 @@ if user_input:
     
      st.stop()           
 # 💾 Chat History Saver feature
-if any(word in user_input.lower() for word in ["save", "load", "clear"]):
+if user_input any(word in user_input.lower() for word in ["save", "load", "clear"]):
     import json
     import os
     
