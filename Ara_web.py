@@ -128,9 +128,9 @@ if user_input:
      st.session_state.messages.append({"role": "user", "content": str(user_input)})
      st.session_state.messages.append({"role": "assistant", "content": reply})
     
-     st.stop()           
-# 💾 Chat History Saver feature
-if user_input and any(word in user_input.lower() for word in ["save", "load", "clear"]):
+     st.stop()
+# 💾Chat History Saver Feature           
+    if any(word in user_input.lower() for word in ["save", "load", "clear"]):
     import json
     import os
     
