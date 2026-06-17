@@ -179,11 +179,11 @@ if user_input:
     
     # Display response
     with st.chat_message("assistant"):
-        st.write(reply)
+        st.write(str(reply))
     
     # Save to current session history (not the file)
     st.session_state.messages.append({"role": "user", "content": str(user_input)})
-    st.session_state.messages.append({"role": "assistant", "content": reply})
+    st.session_state.messages.append({"role": "assistant", "content": str(reply)})
     
     st.stop()
 # Vocabulary helper feature
