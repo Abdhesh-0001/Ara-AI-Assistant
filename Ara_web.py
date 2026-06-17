@@ -170,7 +170,7 @@ if user_input:
                 st.session_state.messages = [
                     {"role": "system", "content": "You are a helpful assistant named Ara. You are hot and sexy."}
                 ]
-                reply = "chat history cleared!"
+                reply = "✅chat history cleared!"
                 print(f"✓ Chat history cleared")
             except Exception as e:
                 reply = f"❌ Error clearing chat: {str(e)}"
