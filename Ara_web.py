@@ -10,7 +10,76 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
+# Add this RIGHT AFTER the imports section
+# ===== RIDDLE GENERATOR CLASS =====
 
+class RiddleGenerator:
+    """A class to manage riddles"""
+    
+    def __init__(self):
+        self.riddles = [
+            {
+                "question": "I have cities but no houses, forests but no trees, water but no fish. What am I?",
+                "answer": "map"
+            },
+            {
+                "question": "What can travel around the world while staying in a corner?",
+                "answer": "stamp"
+            },
+            {
+                "question": "The more you take, the more you leave behind. What am I?",
+                "answer": "footsteps"
+            },
+            {
+                "question": "What has a head and a tail but no body?",
+                "answer": "coin"
+            },
+            {
+                "question": "What can run but never walks, has a mouth but never talks, has a bed but never sleeps?",
+                "answer": "river"
+            },
+            {
+                "question": "I'm light as a feather, yet the strongest person can't hold me for five minutes. What am I?",
+                "answer": "breath"
+            }
+        ]
+        self.current_riddle = None
+        self.guesses = 0
+    
+    def get_random_riddle(self):
+        """Returns a random riddle"""
+        import random
+        self.current_riddle = random.choice(self.riddles)
+        self.guesses = 0
+        return self.current_riddle
+    
+    def check_answer(self, user_answer):
+        """Check if user's answer is correct"""
+        if not self.current_riddle:
+            return "Please ask for a riddle first!"
+        
+        self.guesses += 1
+        correct_answer = self.current_riddle["answer"].lower()
+        user_answer_clean = user_answer.lower().strip()
+        
+        if user_answer_clean == correct_answer:
+            return f"✅ Correct! The answer is: **{self.current_riddle['answer']}**"
+        else:
+            return f"❌ Wrong! Try again. (Attempt {self.guesses})"
+    
+    def add_riddle(self, question, answer):
+        """Add a new riddle"""
+        new_riddle = {
+            "question": question,
+            "answer": answer
+        }
+        self.riddles.append(new_riddle)
+        return f"✅ Riddle added! Now I have {len(self.riddles)} riddles"
+
+# Create global riddle generator object
+riddle_gen = RiddleGenerator()
+
+# ===== END RIDDLE GENERATOR CLASS =====
 
 
 def search_web(query):
@@ -183,6 +252,33 @@ if user_input:
         # Save to current session history (not the file)
         st.session_state.messages.append({"role": "user", "content": str(user_input)})
         st.session_state.messages.append({"role": "assistant", "content": reply})
+        st.stop()
+
+# 🧩 Riddle Generator feature
+    if any(word in user_input.lower() for word in [
+        "riddle",
+        "give me a riddle",
+        "ask me a riddle"
+    ]):
+        import random
+        
+        # Check if user is answering a riddle
+        if riddle_gen.current_riddle and user_input.lower() not in ["riddle", "give me a riddle", "ask me a riddle"]:
+            # User is answering the riddle
+            reply = riddle_gen.check_answer(user_input)
+        else:
+            # User wants a new riddle
+            riddle = riddle_gen.get_random_riddle()
+            reply = f"🧩 **Riddle:** {riddle['question']}\n\n(Type your answer!)"
+        
+        # Display response
+        with st.chat_message("assistant"):
+            st.write(reply)
+        
+        # Save to history
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        
         st.stop()
 
 # Vocabulary helper feature
