@@ -4,12 +4,6 @@ import os
 from dotenv import load_dotenv
 from groq import Groq
 from duckduckgo_search import DDGS
-
-load_dotenv()
-
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
-
 # Add this RIGHT AFTER the imports section
 # ===== RIDDLE GENERATOR CLASS =====
 
@@ -80,6 +74,14 @@ class RiddleGenerator:
 riddle_gen = RiddleGenerator()
 
 # ===== END RIDDLE GENERATOR CLASS =====
+
+load_dotenv()
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+
+
+
 
 
 def search_web(query):
