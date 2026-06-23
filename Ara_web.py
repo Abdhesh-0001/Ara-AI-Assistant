@@ -164,7 +164,7 @@ class QuizGame:
         
         question_text = self.current_question["question"]
         options_text = "\n".join(self.current_question["options"])
-        return f"🎯 **Quiz Game Started!**\n\n{question_text}\n\n{options_text}\n\n(Type A, B, C, or D)"
+        return f"🎯 **Quiz Game Fucked!**\n\n{question_text}\n\n{options_text}\n\n(Type A, B, C, or D)"
     
     def check_answer(self, user_answer):
         """Check if answer is correct"""
