@@ -118,7 +118,94 @@ joke_gen = JokeGenerator()
 
 # ===== END JOKE GENERATOR CLASS =====
 
+# ===== QUIZ GAME CLASS =====
 
+class QuizGame:
+    """A class to manage quiz games"""
+    
+    def __init__(self):
+        self.questions = [
+            {
+                "question": "What is the capital of France?",
+                "options": ["A) London", "B) Paris", "C) Berlin", "D) Madrid"],
+                "correct": "B"
+            },
+            {
+                "question": "What is 2 + 2?",
+                "options": ["A) 3", "B) 4", "C) 5", "D) 6"],
+                "correct": "B"
+            },
+            {
+                "question": "What is the largest planet?",
+                "options": ["A) Earth", "B) Mars", "C) Jupiter", "D) Saturn"],
+                "correct": "C"
+            },
+            {
+                "question": "What year did Python launch?",
+                "options": ["A) 1989", "B) 1995", "C) 2000", "D) 2005"],
+                "correct": "A"
+            },
+            {
+                "question": "How many continents are there?",
+                "options": ["A) 5", "B) 6", "C) 7", "D) 8"],
+                "correct": "C"
+            }
+        ]
+        self.current_question = None
+        self.score = 0
+        self.total_answered = 0
+    
+    def start_game(self):
+        """Start a new game"""
+        import random
+        self.current_question = random.choice(self.questions)
+        self.score = 0
+        self.total_answered = 0
+        
+        question_text = self.current_question["question"]
+        options_text = "\n".join(self.current_question["options"])
+        return f"🎯 **Quiz Game Started!**\n\n{question_text}\n\n{options_text}\n\n(Type A, B, C, or D)"
+    
+    def check_answer(self, user_answer):
+        """Check if answer is correct"""
+        if not self.current_question:
+            return "Please start a game first with 'quiz'!"
+        
+        user_answer = user_answer.upper().strip()
+        
+        if user_answer not in ["A", "B", "C", "D"]:
+            return "❌ Please answer with A, B, C, or D!"
+        
+        self.total_answered += 1
+        correct_answer = self.current_question["correct"]
+        
+        if user_answer == correct_answer:
+            self.score += 1
+            return f"✅ Correct! Your score: {self.score}/{self.total_answered}"
+        else:
+            return f"❌ Wrong! The correct answer is {correct_answer}. Your score: {self.score}/{self.total_answered}"
+    
+    def next_question(self):
+        """Get the next question"""
+        import random
+        self.current_question = random.choice(self.questions)
+        
+        question_text = self.current_question["question"]
+        options_text = "\n".join(self.current_question["options"])
+        return f"🎯 **Next Question!**\n\n{question_text}\n\n{options_text}"
+    
+    def end_game(self):
+        """End game and show final score"""
+        if self.total_answered == 0:
+            return "No questions answered yet!"
+        
+        percentage = (self.score / self.total_answered) * 100
+        return f"🏆 **Game Over!**\n\nFinal Score: {self.score}/{self.total_answered} ({percentage:.0f}%)"
+
+# Create global quiz game object
+quiz_game = QuizGame()
+
+# ===== END QUIZ GAME CLASS =====
 
 def search_web(query):
     """Search the web for current information"""
@@ -308,6 +395,73 @@ if user_input:
             # User wants a new riddle
             riddle = riddle_gen.get_random_riddle()
             reply = f"🧩 **Riddle:** {riddle['question']}\n\n(Type your answer!)"
+        
+        # Display response
+        with st.chat_message("assistant"):
+            st.write(reply)
+        
+        # Save to history
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        
+        st.stop()
+
+# 🎯 Quiz Game feature
+    if any(word in user_input.lower() for word in [
+        "quiz",
+        "play quiz",
+        "start quiz"
+    ]):
+        # Start new game
+        reply = quiz_game.start_game()
+        
+        # Display response
+        with st.chat_message("assistant"):
+            st.write(reply)
+        
+        # Save to history
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        
+        st.stop()
+    
+    # Quiz answer checking
+    if quiz_game.current_question and any(char in user_input.upper() for char in ["A", "B", "C", "D"]):
+        if len(user_input.strip()) == 1:  # Single character answer
+            # User is answering the quiz
+            reply = quiz_game.check_answer(user_input)
+            
+            # Ask if they want next question
+            reply += "\n\n(Type 'next' for next question or 'end' to finish)"
+            
+            # Display response
+            with st.chat_message("assistant"):
+                st.write(reply)
+            
+            # Save to history
+            st.session_state.messages.append({"role": "user", "content": str(user_input)})
+            st.session_state.messages.append({"role": "assistant", "content": reply})
+            
+            st.stop()
+    
+    # Next question in quiz
+    if quiz_game.current_question and user_input.lower() == "next":
+        reply = quiz_game.next_question()
+        
+        # Display response
+        with st.chat_message("assistant"):
+            st.write(reply)
+        
+        # Save to history
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        
+        st.stop()
+    
+    # End quiz
+    if quiz_game.current_question and user_input.lower() == "end":
+        reply = quiz_game.end_game()
+        quiz_game.current_question = None  # Reset
         
         # Display response
         with st.chat_message("assistant"):
