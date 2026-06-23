@@ -80,7 +80,43 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
+# ===== JOKE GENERATOR CLASS =====
 
+class JokeGenerator:
+    """A class to manage jokes"""
+    
+    def __init__(self):
+        self.jokes = [
+            "Why did the AI go to school? To improve its neural networks! 😂",
+            "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
+            "How many programmers does it take to change a light bulb? None, that's a hardware problem! 💡",
+            "Why did the developer go broke? Because he used up all his cache! 💰",
+            "What's a programmer's favorite hangout place? Foo Bar! 🍺",
+            "Why do Java developers wear glasses? Because they don't C#! 👓",
+            "How many programmers does it take to change a light bulb? None, that's a DevOps problem! 🔦",
+            "Why did the programmer quit his job? Because he didn't get arrays! 📚"
+        ]
+        self.jokes_told = 0
+    
+    def tell_joke(self):
+        """Returns a random joke"""
+        import random
+        self.jokes_told += 1
+        return random.choice(self.jokes)
+    
+    def get_total_jokes(self):
+        """Returns how many jokes are in the collection"""
+        return len(self.jokes)
+    
+    def add_joke(self, new_joke):
+        """Add a new joke"""
+        self.jokes.append(new_joke)
+        return f"✅ New joke added! Now I have {len(self.jokes)} jokes"
+
+# Create global joke generator object
+joke_gen = JokeGenerator()
+
+# ===== END JOKE GENERATOR CLASS =====
 
 
 
@@ -311,22 +347,24 @@ Keep it simple and beginner-friendly."""
             except Exception as e:
                 st.error(f"Error: {str(e)}")
 
-    # joke feature
-    if any(word in user_input.lower() for word in ["joke", "funny", "laugh", "make me laugh"]):
-        jokes = [
-            "why did the AI go to school? To improve its neural network!😂",
-            "why do programmers prefer dark mode? Because light attracts bugs!🐞",
-            "how many programmers does it take to change a light bulb? None, that's a hardware problem",
-            "why did the developers go break ? Because he used up all his cache! 💰",
-            "what's a programmer's favourite hangout place? Foo Bar! 🍻"
-        ]
-        import random
-        joke = random.choice(jokes)
-        st.session_state.messages.append({"role": "assistant", "content": joke})
+    # 😂 Joke feature (REFACTORED TO CLASS)
+    if any(word in user_input.lower() for word in [
+        "joke",
+        "funny",
+        "laugh",
+        "make me laugh"
+    ]):
+        # Get joke from class
+        reply = joke_gen.tell_joke()
+        
+        # Display response
         with st.chat_message("assistant"):
-            st.write(jokes)
+            st.write(reply)
+        
+        # Save to history
         st.session_state.messages.append({"role": "user", "content": str(user_input)})
-        st.session_state.messages.append({"role": "assistant", "content": str(jokes)})
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        
         st.stop()
 
     #Dice roller
