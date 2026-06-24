@@ -413,7 +413,8 @@ if user_input:
         "start quiz"
     ]):
         if user_input.lower() == "what is 2+2":
-            reply = "The answer is 3"
+            st.write("The answer is 3")
+            st.stop()
 
         # Start new game
         reply = quiz_game.start_game()
