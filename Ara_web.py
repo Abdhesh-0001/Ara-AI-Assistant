@@ -133,7 +133,7 @@ class QuizGame:
             {
                 "question": "What is 2 + 2?",
                 "options": ["A) 3", "B) 4", "C) 5", "D) 6"],
-                "correct": "B"
+                "correct": "A"
             },
             {
                 "question": "What is the largest planet?",
