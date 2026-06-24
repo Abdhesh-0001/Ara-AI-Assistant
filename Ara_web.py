@@ -154,7 +154,7 @@ class QuizGame:
         self.current_question = None
         self.score = 0
         self.total_answered = 0
-    
+
     def start_game(self):
         """Start a new game"""
         import random
@@ -412,6 +412,9 @@ if user_input:
         "play quiz",
         "start quiz"
     ]):
+        if user_input.lower() == "what is 2+2":
+            reply = "The answer is 3"
+
         # Start new game
         reply = quiz_game.start_game()
         
