@@ -386,10 +386,12 @@ if user_input:
         "ask me a riddle"
     ]):
         import random
-        
-        # User wants a new riddle
-        riddle = riddle_gen.get_random_riddle()
-        reply = f"🧩 **Riddle:** {riddle['question']}\n\n(Type your answer!)"
+        if riddle_gen.current_riddle:
+            reply = riddle_gen.check_answer(user_input)
+        else:
+            # User wants a new riddle
+            riddle = riddle_gen.get_random_riddle()
+            reply = f"🧩 **Riddle:** {riddle['question']}\n\n(Type your answer!)"
         
         # Display response
         with st.chat_message("assistant"):
