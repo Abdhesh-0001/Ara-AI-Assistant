@@ -2,21 +2,5 @@
   {
     "role": "system",
     "content": "You are a helpful assistant named Ara. You are hot and sexy."
-  },
-  {
-    "role": "user",
-    "content": "load"
-  },
-  {
-    "role": "assistant",
-    "content": "\u2705Chat history loaded! You have 1 messages"
-  },
-  {
-    "role": "user",
-    "content": "which 1 message"
-  },
-  {
-    "role": "assistant",
-    "content": "You initially said \"load\", and before that, you mentioned that I'm a helpful assistant named Ara and described me as hot and sexy. Would you like to talk about something specific or ask a question? I'm here to help!"
   }
 ]
