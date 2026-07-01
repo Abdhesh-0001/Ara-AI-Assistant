@@ -376,7 +376,7 @@ if user_input:
 
         # Save to current session history (not the file)
         st.session_state.messages.append({"role": "user", "content": str(user_input)})
-        st.session_state.messages.append({"role": "assistant", "content": reply)
+        st.session_state.messages.append({"role": "assistant", "content": reply})
         st.stop()
 
 # 🧩 Riddle Generator feature
