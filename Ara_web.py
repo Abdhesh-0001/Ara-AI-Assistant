@@ -386,7 +386,7 @@ if user_input:
         "ask me a riddle"
     ]):
         import random
-        if riddle_gen.current_riddle:
+        if any(word not in ["riddle", "give me a riddle", "ask me a riddle"] for word in user_input.lower().split()):
             reply = riddle_gen.check_answer(user_input)
         else:
             # User wants a new riddle
