@@ -327,7 +327,7 @@ if user_input:
     if any(word in user_input.lower() for word in ["save", "load", "clear"]):
         import json
         import os
-        filename = "chat_history.json"
+        filename now = "chat_history.json"
 
         # SAVE chat history
         if "save" in user_input.lower():
