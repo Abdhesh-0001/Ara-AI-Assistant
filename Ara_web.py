@@ -332,7 +332,7 @@ if user_input:
         # SAVE chat history
         if "save" in user_input.lower():
             try:
-                with open(filename, "w") as f:
+                with open(filename,) as f:
                     json.dump(st.session_state.messages, f , indent=2)
                 reply = f"✅ Chat history saved to {filename}"
                 print(f"✓ saved {len(st.session_state.messages)} messages to {filename}")
