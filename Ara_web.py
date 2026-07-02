@@ -332,10 +332,10 @@ if user_input:
         # SAVE chat history
         if "save" in user_input.lower():
             try:
-                with open(filename,"w") as f:
+                with open(filename_now,"w") as f:
                     json.dump(st.session_state.messages, f , indent=2)
-                reply = f"✅ Chat history saved to {filename}"
-                print(f"✓ saved {len(st.session_state.messages)} messages to {filename}")
+                reply = f"✅ Chat history saved to {filename_now}"
+                print(f"✓ saved {len(st.session_state.messages)} messages to {filename_now}")
             except Exception as e:
                 reply = f"❌ Error saving chat: {str(e)}"
                 print(f"✗ Error saving: {str(e)}")
@@ -343,11 +343,11 @@ if user_input:
         # LOAD chat history
         elif "load" in user_input.lower():
             try:
-                if os.path.exists(filename):
-                    with open(filename, "r") as f:
+                if os.path.exists(filename_now):
+                    with open(filename_now, "r") as f:
                         st.session_state.messages = json.load(f)
                     reply = f"✅Chat history loaded! You have {len(st.session_state.messages)} messages"
-                    print(f"✓ loaded {len(st.session_state.messages)} messages from {filename}")
+                    print(f"✓ loaded {len(st.session_state.messages)} messages from {filename_now}")
                 else:
                     reply = f"❌ No saved chat found. start chatting and save with 'save chat'"
             except Exception as e:
@@ -357,9 +357,9 @@ if user_input:
         # Clear Chat History
         elif "clear" in user_input.lower():
             try:
-                if os.path.exists(filename):
-                    os.remove(filename)
-                    print(f"✓ Deleted {filename}")
+                if os.path.exists(filename_now):
+                    os.remove(filename_now)
+                    print(f"✓ Deleted {filename_now}")
 
                 st.session_state.messages = [
                     {"role": "system", "content": "You are a helpful assistant named Ara. You are hot and sexy."}
