@@ -327,15 +327,15 @@ if user_input:
     if any(word in user_input.lower() for word in ["save", "load", "clear"]):
         import json
         import os
-        filename_now = "chat_history.json"
+        filenamenow = "chat_history.json"
 
         # SAVE chat history
         if "save" in user_input.lower():
             try:
-                with open(filename_now,"w") as f:
+                with open(filenamenow,"w") as f:
                     json.dump(st.session_state.messages, f , indent=2)
-                reply = f"✅ Chat history saved to {filename_now}"
-                print(f"✓ saved {len(st.session_state.messages)} messages to {filename_now}")
+                reply = f"✅ Chat history saved to {filenamenow}"
+                print(f"✓ saved {len(st.session_state.messages)} messages to {filenamenow}")
             except Exception as e:
                 reply = f"❌ Error saving chat: {str(e)}"
                 print(f"✗ Error saving: {str(e)}")
@@ -343,11 +343,11 @@ if user_input:
         # LOAD chat history
         elif "load" in user_input.lower():
             try:
-                if os.path.exists(filename_now):
-                    with open(filename_now, "r") as f:
+                if os.path.exists(filenamenow):
+                    with open(filenamenow, "r") as f:
                         st.session_state.messages = json.load(f)
                     reply = f"✅Chat history loaded! You have {len(st.session_state.messages)} messages"
-                    print(f"✓ loaded {len(st.session_state.messages)} messages from {filename_now}")
+                    print(f"✓ loaded {len(st.session_state.messages)} messages from {filenamenow}")
                 else:
                     reply = f"❌ No saved chat found. start chatting and save with 'save chat'"
             except Exception as e:
@@ -357,9 +357,9 @@ if user_input:
         # Clear Chat History
         elif "clear" in user_input.lower():
             try:
-                if os.path.exists(filename_now):
-                    os.remove(filename_now)
-                    print(f"✓ Deleted {filename_now}")
+                if os.path.exists(filenamenow):
+                    os.remove(filenamenow)
+                    print(f"✓ Deleted {filenamenow}")
 
                 st.session_state.messages = [
                     {"role": "system", "content": "You are a helpful assistant named Ara. You are hot and sexy."}
