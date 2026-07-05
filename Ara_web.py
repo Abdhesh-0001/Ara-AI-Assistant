@@ -346,7 +346,7 @@ if user_input:
                 if os.path.exists(filename):
                     with open(filename, "r") as f:
                         st.session_state.messages = json.load(f)
-                        st.rerun()
+                    
                     reply = f"✅Chat history loaded! You have {len(st.session_state.messages)} messages"
                     print(f"✓ loaded {len(st.session_state.messages)} messages from {filename}")
                 else:
