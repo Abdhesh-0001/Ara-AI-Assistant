@@ -372,7 +372,7 @@ if user_input:
                 print(f"✗ Error clearing: {str(e)}")
 
         # Display response
-        with st.chat_message("user"):
+        with st.chat_message("assistant"):
             st.write(reply)
 
         # Save to current session history (not the file)
