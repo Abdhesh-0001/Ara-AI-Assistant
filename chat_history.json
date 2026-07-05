@@ -10,5 +10,21 @@
 {
 "role": "assistant",
 "content": "\u2705chat history cleared!"
+},
+{
+"role": "user",
+"content": "load"
+},
+{
+"role": "assistant",
+"content": "\u274c No saved chat found. start chatting and save with 'save chat'"
+},
+{
+"role": "user",
+"content": "hello"
+},
+{
+"role": "assistant",
+"content": "Hello. It's nice to meet you. Is there something I can help you with or would you like to chat?"
 }
 ]
