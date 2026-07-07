@@ -1,12 +1,20 @@
-def calculate_average(numbers):
-    total = 0
-    for num in numbers:
-        total = total + num
-    average = total / len(numbers)
-    return average
+def count_votes(votes_list):
+    """Count votes for each candidate"""
+    vote_count = {}
+    
+    for vote in votes_list:
+        if vote in vote_count:
+            vote_count[vote] = vote_count[vote] + 1
+        else:
+            vote_count[vote] = 1
+    
+    return vote_count
 
-result = calculate_average([10, 20, 30])
-print(result)  # Works fine
+# Test
+votes = ["Alice", "Bob", "Alice", "Charlie", "Bob", "Alice"]
+result = count_votes(votes)
+print(result)
 
-result2 = calculate_average([])
-print(result2)  # What happens?
+# Now get the winner
+winner = max(result, key=result.get)
+print(f"Winner: {winner}")
