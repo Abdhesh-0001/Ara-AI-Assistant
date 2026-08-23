@@ -635,7 +635,7 @@ Keep it simple and beginner-friendly."""
     
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             messages=st.session_state.messages
         )
         reply = str(response.choices[0].message.content)
