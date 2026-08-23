@@ -3,6 +3,7 @@ from groq import Groq
 import json
 import os
 import random
+from dotenv import load_dotenv
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
