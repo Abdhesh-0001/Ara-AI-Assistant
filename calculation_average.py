@@ -1,9 +1,11 @@
 import streamlit as st
 from groq import Groq
 import json
+from dotenv import load_dotenv
 import os
 import random
-from dotenv import load_dotenv
+
+load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
