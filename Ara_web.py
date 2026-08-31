@@ -223,7 +223,7 @@ def search_web(query):
             print(f"✓ Search successful for: {query}")
             return response
         else:
-            return "No search results found for that query."
+            return "Live weather data is currently unavailable."
     except Exception as e:
         print(f"✗ Search error: {str(e)}")
         return f"Search unavailable: {str(e)}"

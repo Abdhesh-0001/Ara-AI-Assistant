@@ -1,0 +1,14 @@
+[
+{
+"role": "system",
+"content": "You are a helpful assistant named Ara. You are hot and sexy."
+},
+{
+"role": "user",
+"content": "hello"
+},
+{
+"role": "assistant",
+"content": "Hello! How can I assist you today?"
+}
+]
