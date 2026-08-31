@@ -638,6 +638,8 @@ Keep it simple and beginner-friendly."""
             model="openai/gpt-oss-120b",
             messages=st.session_state.messages
         )
+        max_tokens = 180
+        max_temperature = 0.2
         reply = str(response.choices[0].message.content)
         st.session_state.messages.append({"role": "assistant", "content": reply})
         
