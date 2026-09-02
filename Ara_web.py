@@ -603,35 +603,31 @@ Keep it simple and beginner-friendly."""
             weather_info = None
     
    # Only search for queries that need fresh information
-    search_keywords = ["weather", "latest", "current", "today", "news", "2025", "2026"]
+    search_keywords = ["latest", "current", "today", "news", "2025", "2026"]
     search_result = None
     
-    if any(keyword in user_input.lower() for keyword in search_keywords):
+    if any(keyword in user_input.lower() for keyword in search_keywords) and not weather_info:
         print(f"🔎 Searching web for: {user_input}")
         try:
             search_result = search_web(user_input)
-            if search_result and "No search results found" not in search_result:
-                with st.chat_message("assistant"):
-                    st.markdown(search_result)
-                print("✓ Search results displayed")
-            else:
+            if search_result and "unavailable"  in search_result.lower():
                 search_result = None
         except Exception as e:
             print(f"Search error: {str(e)}")
-            search_result = None
     else:
         print(f"Normal chat - no web search needed")
         search_result = None
     
-    # Build the message for AI with all available context
-    full_message = user_input
-    if search_result and search_result != "":
-        full_message += f"\n\nLatest web search results:\n{search_result}"
+    # construct context safely
+    prompt_context = user_input
     if weather_info:
-        full_message += f"\n\nWeather info: {weather_info}"
+        prompt_context += f"\n\nContext (Real-time Weather): {weather_info}"
+    elif search_result:
+        prompt_context += f"\n\nContext (Web Search): {search_result}"
+
     
-    # Send to AI for response (include latest web/search/weather context)
-    st.session_state.messages.append({"role": "user", "content": full_message})
+    # store only clean user input in history, send context in API payload
+    api_messages = st.session_state.messages + ({"role": "user", "content": prompt_context})
     
     try:
         response = client.chat.completions.create(
@@ -639,8 +635,9 @@ Keep it simple and beginner-friendly."""
             messages=st.session_state.messages
         )
         max_tokens = 180
-        max_temperature = 0.2
+        temperature = 0.2
         reply = str(response.choices[0].message.content)
+        st.session_state.message.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "assistant", "content": reply})
         
         with st.chat_message("assistant"):
