@@ -627,7 +627,7 @@ Keep it simple and beginner-friendly."""
 
     
     # store only clean user input in history, send context in API payload
-    api_messages = st.session_state.messages + ({"role": "user", "content": prompt_context})
+    
     
     try:
         response = client.chat.completions.create(
