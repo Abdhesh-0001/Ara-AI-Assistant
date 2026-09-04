@@ -220,7 +220,7 @@ def search_web(query):
                 body = result.get('body', 'No description')
                 response += f"{i}. **{title}**\n"
                 response += f"   {body}\n\n"
-            
+            st.write(f"✔️Search successful for:{query}")
             return response
         else:
             return "Live weather data is currently unavailable."
