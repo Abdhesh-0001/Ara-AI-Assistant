@@ -510,7 +510,7 @@ Keep it simple and beginner-friendly."""
         "laugh",
         "make me laugh"
     ]):
-        
+        # Get joke from class
         reply = joke_gen.tell_joke()
         
         # Display response
