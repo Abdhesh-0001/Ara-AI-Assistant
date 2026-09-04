@@ -220,12 +220,12 @@ def search_web(query):
                 body = result.get('body', 'No description')
                 response += f"{i}. **{title}**\n"
                 response += f"   {body}\n\n"
-            print(f"✓ Search successful for: {query}")
+            
             return response
         else:
             return "Live weather data is currently unavailable."
     except Exception as e:
-        print(f"✗ Search error: {str(e)}")
+        
         return f"Search unavailable: {str(e)}"
     
      
@@ -335,10 +335,10 @@ if user_input:
                 with open (filename,"w") as f:
                     json.dump(st.session_state.messages, f , indent=0)
                 reply = f"✅ Chat history saved to {filename}"
-                print(f"✓ saved {len(st.session_state.messages)} messages to {filename}")
+                st.write(f"✓ saved {len(st.session_state.messages)} messages to {filename}")
             except Exception as e:
                 reply = f"❌ Error saving chat: {str(e)}"
-                print(f"✗ Error saving: {str(e)}")
+                st.write(f"✗ Error saving: {str(e)}")
 
         # LOAD chat history
         elif "load" in user_input.lower():
@@ -348,12 +348,12 @@ if user_input:
                         st.session_state.messages = json.load(f)
                     
                     reply = f"✅Chat history loaded! You have {len(st.session_state.messages)} messages"
-                    print(f"✓ loaded {len(st.session_state.messages)} messages from {filename}")
+                    st.write(f"✓ loaded {len(st.session_state.messages)} messages from {filename}")
                 else:
                     reply = f"❌ No saved chat found. start chatting and save with 'save chat'"
             except Exception as e:
                 reply = f"❌ Error loading chat: {str(e)}"
-                print(f"✗ Error loading: {str(e)}")
+                st.write(f"✗ Error loading: {str(e)}")
 
         # Clear Chat History
         elif "clear" in user_input.lower():
@@ -366,10 +366,10 @@ if user_input:
                     {"role": "system", "content": "You are a helpful assistant named Ara. You are hot and sexy."}
                 ]
                 reply = "✅chat history cleared!"
-                print(f"✓ Chat history cleared")
+                st.write(f"✓ Chat history cleared")
             except Exception as e:
                 reply = f"❌ Error clearing chat: {str(e)}"
-                print(f"✗ Error clearing: {str(e)}")
+                st.write(f"✗ Error clearing: {str(e)}")
 
         # Display response
         with st.chat_message("assistant"):
@@ -597,9 +597,9 @@ Keep it simple and beginner-friendly."""
             city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
             city = city if city else "London"
             weather_info = get_weather(city)
-            print(f"Weather fetched: {city}")
+            st.write(f"Weather fetched: {city}")
         except Exception as e:
-            print(f"Weather error: {str(e)}")
+            st.write(f"Weather error: {str(e)}")
             weather_info = None
     
    # Only search for queries that need fresh information
@@ -607,17 +607,17 @@ Keep it simple and beginner-friendly."""
     search_result = None
     
     if any(keyword in user_input.lower() for keyword in search_keywords):
-        print(f"🔎 Searching web for: {user_input}")
+        st.write(f"🔎 Searching web for: {user_input}")
         try:
             search_result = search_web(user_input)
             if search_result and "No search results found" not in search_result:
                 with st.chat_message("assistant"):
                     st.markdown(search_result)
-                print("✓ Search results displayed")
+                st.write("✓ Search results displayed")
             else:
                 search_result = None
         except Exception as e:
-            print(f"Search error: {str(e)}")
+            st.write(f"Search error: {str(e)}")
             search_result = None
     else:
         print(f"Normal chat - no web search needed")
@@ -645,8 +645,8 @@ Keep it simple and beginner-friendly."""
         
         with st.chat_message("assistant"):
             st.write(reply)
-        print("✓ AI response generated")
+        st.write("✓ AI response generated")
     except Exception as e:
         error_msg = f"AI error: {str(e)}"
         st.error(error_msg)
-        print(f"✗ {error_msg}")
+        st.write(f"✗ {error_msg}")
