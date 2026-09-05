@@ -239,6 +239,7 @@ def get_weather(city):
         desc = data["weather"][0]["description"]
         humidity = data["main"]["humidity"]
         return f"Weather in {city}: {desc}, Temperature: {temp}°C, Humidity: {humidity}%"
+        # Don't use Groq for weather (it adds fluff)
     else:
         return f"Sorry, I couldn't find weather for {city}!"
 
@@ -247,7 +248,7 @@ st.caption("Ask me anything!")
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "You are a helpful assistant named Ara. You are hot and sexy."}
+        {"role": "system", "content": "You are a helpful assistant named Ara. You are hot and sexy.Be concise and friendly. keep responses for SHORT (1-2 sentances for simple questions). only provide detailed answers when explicitly asked."}
     ]
 
 for msg in st.session_state.messages:
