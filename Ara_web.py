@@ -248,7 +248,7 @@ st.caption("Ask me anything!")
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "You are a helpful assistant named Ara. You are hot and sexy.Be concise and friendly. keep responses for SHORT (1-2 sentances for simple questions). only provide detailed answers when explicitly asked."}
+        {"role": "system", "content": "You are Ara, a helpful AI assistant. Be concise and friendly. Keep responses SHORT (1-2 sentences for simple questions)."}
     ]
 
 for msg in st.session_state.messages:
@@ -411,9 +411,6 @@ if user_input:
         "play quiz",
         "start quiz"
     ]):
-        if user_input.lower() == "what is 2+2":
-            st.write("The answer is 3")
-            st.stop()
 
         # Start new game
         reply = quiz_game.start_game()
@@ -524,27 +521,6 @@ Keep it simple and beginner-friendly."""
         
         st.stop()
 
-    #Dice roller
-    if any(word in user_input.lower() for word in ["roll", "dice", "d6", "d20"]):
-        import random
-        # Extract number if user says "roll d20" or "roll 20"
-        if "d" in user_input.lower():
-            dice_type = user_input.lower().split("d")[1].split()[0]
-            try:
-                dice_sides = int(dice_type)
-                result = random.randint(1, dice_sides)
-                reply = f"🎲 you rolled a {dice_sides}-sided die and got: **{result}**"
-            except:
-                result = random.randint(1, 6)
-                reply = f"🎲 you rolled a 6-sided die and got: **{result}**"
-        else:
-            result = random.randint(1, 6)
-            reply = f"🎲 you rolled a 6-sided die and got: **{result}**"
-            with st.chat_message("assistant"):
-                st.write(reply)
-            st.session_state.messages.append({"role": "user", "content": str(user_input)})
-            st.session_state.messages.append({"role": "assistant", "content": str(reply)})
-            st.stop()
     #motivation quotes
     if any(word in user_input.lower() for word in ["motivate", "inspire", "quote", "encourage"]):
         quotes = [
