@@ -5,10 +5,10 @@
 },
 {
 "role": "user",
-"content": "hello"
+"content": "clear"
 },
 {
 "role": "assistant",
-"content": "Hello! How can I assist you today?"
+"content": "\u2705chat history cleared!"
 }
 ]

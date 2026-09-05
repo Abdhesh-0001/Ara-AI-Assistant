@@ -231,24 +231,30 @@ def search_web(query):
      
 
 def get_weather(city):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
-    response = requests.get(url)
-    data = response.json()
-    if data["cod"] == 200:
-        temp = data["main"]["temp"]
-        desc = data["weather"][0]["description"]
-        humidity = data["main"]["humidity"]
-        return f"Weather in {city}: {desc}, Temperature: {temp}°C, Humidity: {humidity}%"
-        # Don't use Groq for weather (it adds fluff)
-    else:
-        return f"Sorry, I couldn't find weather for {city}!"
+    try:
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
+        response = requests.get(url)
+        data = response.json()
+        
+        if data["cod"] == 200:
+            temp = data["main"]["temp"]
+            desc = data["weather"][0]["description"]
+            humidity = data["main"]["humidity"]
+            
+            # Return CONCISE weather (don't send to Groq, just format nicely)
+            reply = f"🌤️ **{city.title()}**\nCondition: {desc.title()}\nTemp: {temp}°C\nHumidity: {humidity}%"
+            return reply
+        else:
+            return f"❌ Weather not found for {city}"
+    except Exception as e:
+        return f"❌ Weather error: {str(e)}"
 
 st.title("Ara- Your AI Assistant")
 st.caption("Ask me anything!")
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "You are Ara, a helpful AI assistant. Be concise and friendly. Keep responses SHORT (1-2 sentences for simple questions)."}
+        {"role": "system", "content": "You are Ara, a helpful AI assistant. Be concise and friendly. Keep responses SHORT (1-2 sentences for simple questions). Only provide detailed answers when explicitly asked. For weather queries, provide only the weather facts without elaboration."}
     ]
 
 for msg in st.session_state.messages:
