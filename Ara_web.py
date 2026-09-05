@@ -574,19 +574,27 @@ Keep it simple and beginner-friendly."""
         st.session_state.messages.append({"role": "assistant", "content": str(reply)})
         st.stop()
 
-    # Check for weather query first
+    # Check for weather query FIRST
     if "weather" in user_input.lower():
         try:
             city = user_input.lower().replace("weather", "").replace("in", "").replace("of", "").strip()
             city = city if city else "London"
             weather_info = get_weather(city)
-            st.write(f"Weather fetched: {city}")
+        
+            # Display weather DIRECTLY - DON'T send to Groq!
+            with st.chat_message("assistant"):
+                st.write(weather_info)
+        
+        # Save to history
+            st.session_state.messages.append({"role": "user", "content": str(user_input)})
+            st.session_state.messages.append({"role": "assistant", "content": weather_info})
+        
+            st.stop()  # ← STOP HERE! Don't send to Groq!
         except Exception as e:
             st.write(f"Weather error: {str(e)}")
-            weather_info = None
     
    # Only search for queries that need fresh information
-    search_keywords = ["weather", "latest", "current", "today", "news", "2025", "2026"]
+    search_keywords = ["latest", "current", "today", "news", "2025", "2026"]
     search_result = None
     
     if any(keyword in user_input.lower() for keyword in search_keywords):
@@ -610,8 +618,6 @@ Keep it simple and beginner-friendly."""
     full_message = user_input
     if search_result and search_result != "":
         full_message += f"\n\nLatest web search results:\n{search_result}"
-    if weather_info:
-        full_message += f"\n\nWeather info: {weather_info}"
     
     # Send to AI for response (include latest web/search/weather context)
     st.session_state.messages.append({"role": "user", "content": full_message})
