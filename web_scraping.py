@@ -1,16 +1,22 @@
 import requests
 from bs4 import BeautifulSoup
 
-# Fetch a simple webpage
 url = "https://example.com"
 response = requests.get(url)
-
-# Parse it
 soup = BeautifulSoup(response.text, 'html.parser')
 
-# Find all paragraphs
-paragraphs = soup.find_all('p')
+# Find all links
+links = soup.find_all('a')
 
-# Print first 3
-for para in paragraphs[:3]:
-    print(para.text)
+# Extract and print the first 3 links
+for link in links[:3]:
+    # Each link has:
+    # - link.text (the text shown)
+    # - link.get('href') (the actual URL)
+    
+    text = link.text
+    url_href = link.get('href')
+    
+    print(f"Text: {text}")
+    print(f"URL: {url_href}")
+    print("---")
