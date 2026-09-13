@@ -8,6 +8,7 @@ html = """
   <div class="product">Galaxy S24</div>
   <div class="product">Pixel 8</div>
   <div id="featured">OnePlus 12</div>
+  <div id="featured">OnePlus 12</div>
 </html>
 """
 
