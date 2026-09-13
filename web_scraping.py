@@ -1,22 +1,24 @@
 import requests
 from bs4 import BeautifulSoup
 
-url = "https://example.com"
-response = requests.get(url)
-soup = BeautifulSoup(response.text, 'html.parser')
+# Example HTML (simplified)
+html = """
+<html>
+  <div class="product">iPhone 15</div>
+  <div class="product">Galaxy S24</div>
+  <div class="product">Pixel 8</div>
+  <div id="featured">OnePlus 12</div>
+</html>
+"""
 
-# Find all links
-links = soup.find_all('a')
+soup = BeautifulSoup(html, 'html.parser')
 
-# Extract and print the first 3 links
-for link in links[:3]:
-    # Each link has:
-    # - link.text (the text shown)
-    # - link.get('href') (the actual URL)
-    
-    text = link.text
-    url_href = link.get('href')
-    
-    print(f"Text: {text}")
-    print(f"URL: {url_href}")
-    print("---")
+# Find by CLASS (multiple results)
+products = soup.find_all(class_='product')
+print("Products found:")
+for product in products:
+    print(f"  - {product.text}")
+
+# Find by ID (single result)
+featured = soup.find(id='featured')
+print(f"\nFeatured: {featured.text}")
