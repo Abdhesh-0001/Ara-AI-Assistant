@@ -21,5 +21,5 @@ for product in products:
     print(f"  - {product.text}")
 
 # Find by ID (single result)
-featured = soup.find(id='featured')
+featured = soup.find_all(id='featured')
 print(f"\nFeatured: {featured.text}")
