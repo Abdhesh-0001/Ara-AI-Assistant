@@ -22,7 +22,7 @@ for product in products:
     print(f"  - {product.text}")
 
 # Find by ID (single result)
-featureds = soup.find(id='featured')
+featureds = soup.find_all(id='featured')
 print("featureds found:")
 for featured in featureds:
     print(f"  - {featured.text}")
