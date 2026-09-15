@@ -7,6 +7,7 @@ html = """
   <div class="product">iPhone 15</div>
   <div class="product">Galaxy S24</div>
   <div class="product">Pixel 8</div>
+  <div class="product">Pixel 25</div>
   <div id="featured">OnePlus 12</div>
   <div id="featured">OnePlus 13</div>
 </html>
