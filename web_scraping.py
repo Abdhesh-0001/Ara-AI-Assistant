@@ -1,28 +1,37 @@
 import requests
 from bs4 import BeautifulSoup
 
-# Example HTML (simplified)
 html = """
 <html>
-  <div class="product">iPhone 15</div>
-  <div class="product">Galaxy S24</div>
-  <div class="product">Pixel 8</div>
-  <div class="product">Pixel 25</div>
-  <div id="featured">OnePlus 12</div>
-  <div id="featured">OnePlus 13</div>
+  <div class="product">
+    <span class="name">iPhone 15</span>
+    <span class="price">$999</span>
+  </div>
+  <div class="product">
+    <span class="name">Galaxy S24</span>
+    <!-- No price tag for this one! -->
+  </div>
+  <div class="product">
+    <span class="name">Pixel 8</span>
+    <span class="price">$799</span>
+  </div>
 </html>
 """
 
 soup = BeautifulSoup(html, 'html.parser')
 
-# Find by CLASS (multiple results)
+# Find all products
 products = soup.find_all(class_='product')
-print("Products found:")
-for product in products[3:4]:
-    print(f"  - {product.text}")
 
-# Find by ID (single result)
-featureds = soup.find_all(id='featured')
-print("featureds found:")
-for featured in featureds:
-    print(f"  - {featured.text}")
+for product in products:
+    # Get name (safe - always exists)
+    name_tag = product.find(class_='name')
+    name = name_tag.text if name_tag else "Unknown"
+    
+    # Get price (might not exist!)
+    price_tag = product.find(class_='price')
+    price = price_tag.text if price_tag else "Price unavailable"
+    
+    print(f"Product: {name}")
+    print(f"Price: {price}")
+    print("---")
