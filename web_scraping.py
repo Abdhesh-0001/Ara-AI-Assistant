@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 html = """
 <html>
   <div class="product">
-    <span class="name">iPhone 15</span>
+    <span class=>iPhone 15</span>
     <span class="price">$999</span>
   </div>
   <div class="product">
