@@ -16,7 +16,7 @@ soup = BeautifulSoup(html, 'html.parser')
 
 # Test these selectors:
 print("1. All products:")
-products = soup.select('.product')
+products = soup.select('.container>.product')
 for p in products:
     print(f"  {p.text}")
 
