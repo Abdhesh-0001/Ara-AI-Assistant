@@ -31,6 +31,6 @@ for d in discount:
     print(f"  {d.text}")
 
 print("\n4. First product only:")
-first = soup.select('.product')[:1]
+first = soup.select('.product')[:2]
 for f in first:
     print(f"  {f.text}")
