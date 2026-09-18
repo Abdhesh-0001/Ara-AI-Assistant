@@ -18,7 +18,7 @@ soup = BeautifulSoup(html, 'html.parser')
 # Find by CLASS (multiple results)
 products = soup.find_all(class_='product')
 print("Products found:")
-for product in products[3:3]:
+for product in products[3:4]:
     print(f"  - {product.text}")
 
 # Find by ID (single result)
