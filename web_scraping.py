@@ -26,7 +26,7 @@ products = soup.find_all(class_='product')
 for product in products:
     # Get name (safe - always exists)
     name_tag = product.find(class_='name')
-    name = name_tag.text, "Unknown"
+    name = name_tag.text
     
     # Get price (might not exist!)
     price_tag = product.find(class_='price')
