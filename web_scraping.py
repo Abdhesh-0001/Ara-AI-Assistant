@@ -5,6 +5,7 @@ html = """
   <div class="container">
     <div class="product">iPhone 15</div>
     <div class="product featured">Galaxy S24</div>
+    <div class="product featured">Galaxy S29</div>
     <div class="product">Pixel 8</div>
     <p id="discount">20% OFF</p>
   </div>
