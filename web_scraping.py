@@ -9,7 +9,7 @@ soup = BeautifulSoup(response.text, 'html.parser')
 quotes = soup.select('.quote')
 
 for quote in quotes[:3]:  # First 3 only
-    text = quote.select('.text').text
+    text = quote.select_one('.text').text
     author = quote.select_one('.author').text
     
     print(f"Quote: {text}")
