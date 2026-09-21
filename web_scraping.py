@@ -1,17 +1,32 @@
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
-url = "http://quotes.toscrape.com/"
-response = requests.get(url)
-soup = BeautifulSoup(response.text, 'html.parser')
+url = "https://news.ycombinator.com/"
 
-# Find all quotes using CSS selector
-quotes = soup.select('.quote')
-
-for quote in quotes[:3]:  # First 3 only
-    text = quote.select_one('.text').text
-    author = quote.select_one('.author').text
+try:
+    response = requests.get(url, timeout=5)
+    response.raise_for_status()  # Raise error if not 200
+    soup = BeautifulSoup(response.text, 'html.parser')
     
-    print(f"Quote: {text}")
-    print(f"Author: {author}")
-    print("---")
+    # Find articles
+    articles = soup.select('.titleline')[:5]
+    
+    for article in articles:
+        # Safely extract title
+        title_tag = article.select_one('a')
+        title = title_tag.text if title_tag else "No title"
+        
+        # Safely extract URL
+        url_href = title_tag.get('href') if title_tag else "No URL"
+        
+        print(f"Title: {title}")
+        print(f"URL: {url_href}")
+        print("---")
+        
+except requests.exceptions.Timeout:
+    print("❌ Website took too long to respond")
+except requests.exceptions.ConnectionError:
+    print("❌ Could not connect to website")
+except Exception as e:
+    print(f"❌ Error: {str(e)}")
