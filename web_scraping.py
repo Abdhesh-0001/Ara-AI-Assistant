@@ -6,7 +6,7 @@ url = "https://news.ycombinator.com/"
 
 try:
     response = requests.get(url, timeout=5)
-    response.raise_for_status()  # Raise error if not 200
+      # Raise error if not 200
     soup = BeautifulSoup(response.text, 'html.parser')
     
     # Find articles
