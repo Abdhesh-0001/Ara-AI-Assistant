@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-url = "https://news.ycombina.com/"
+url = "https://news.ycombinator.com/"
 
 try:
     response = requests.get(url, timeout=5)
