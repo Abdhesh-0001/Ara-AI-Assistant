@@ -26,7 +26,7 @@ try:
         for p in paragraphs:
             cleaned = clean_text(p.text)
             all_text.append(cleaned)
-            print(f"- {cleaned[:100]}...")  # First 100 chars
+            print(f"- {cleaned[:1000]}...")  # First 100 chars
         
         # Combine all text
         full_text = " ".join(all_text)
