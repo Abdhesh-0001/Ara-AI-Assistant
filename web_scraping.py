@@ -3,35 +3,47 @@ from bs4 import BeautifulSoup
 import re
 
 def clean_text(text):
-    """Remove extra whitespace and newlines"""
-    # Remove multiple spaces/newlines
+    """Remove extra whitespace"""
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
-url = "https://example.com"
+# Scrape a real news source
+url = "https://news.ycombinator.com/"
 
 try:
     response = requests.get(url, timeout=5)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
     
-    # Find main content
-    paragraphs = soup.find_all('p')[:3]
+    # Get top 3 stories
+    stories = soup.select('.titleline')[:3]
     
-    if not paragraphs:
-        print("❌ No paragraphs found")
+    if not stories:
+        print("❌ No stories found")
     else:
-        print("✅ Extracted content:")
-        all_text = []
-        for p in paragraphs:
-            cleaned = clean_text(p.text)
-            all_text.append(cleaned)
-            print(f"- {cleaned[:10]}...")  # First 100 chars
+        print("✅ TOP 3 NEWS STORIES:\n")
         
-        # Combine all text
-        full_text = " ".join(all_text)
-        print(f"\n📊 Total characters: {len(full_text)}")
-        print(f"📊 Ready for Groq: {full_text[:200]}...")
-        
+        for i, story in enumerate(stories, 1):
+            # Extract title and URL
+            link = story.select_one('a')
+            
+            if link:
+                title = clean_text(link.text)
+                story_url = link.get('href', 'No URL')
+                
+                # Make relative URLs absolute
+                if story_url.startswith('/'):
+                    story_url = "https://news.ycombinator.com" + story_url
+                
+                print(f"{i}. Title: {title}")
+                print(f"   URL: {story_url}")
+                print(f"   Status: ✅ Ready for summarization\n")
+            else:
+                print(f"{i}. ❌ Could not extract story")
+    
+except requests.exceptions.Timeout:
+    print("❌ Website too slow")
+except requests.exceptions.ConnectionError:
+    print("❌ No internet connection")
 except Exception as e:
     print(f"❌ Error: {str(e)}")
