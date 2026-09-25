@@ -52,7 +52,7 @@ def extract_article(url):
         return f"❌ Error: {str(e)}"
 
 # TEST IT
-article_url = "https://example.com"
+article_url = "https://news.ycombinator.com/"
 content = extract_article(article_url)
 
 if content:
