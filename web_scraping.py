@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import time  # IMPORTANT for rate limiting!
 
 def clean_text(text):
     """Remove extra whitespace"""
@@ -8,57 +9,88 @@ def clean_text(text):
     return text.strip()
 
 def extract_article(url):
-    """Extract main content from any article"""
+    """Extract main content from article"""
     try:
         response = requests.get(url, timeout=5)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Try to find article content (different sites use different tags)
-        # Priority: article > main > div.content
-        content = soup.find('article')
-        if not content:
-            content = soup.find('main')
-        if not content:
-            content = soup.find('div', class_='content')
+        # Find content
+        content = soup.find('article') or soup.find('main') or soup.find('div', class_='content')
         
         if not content:
             return None
         
-        # Extract all paragraphs
         paragraphs = content.find_all('p')
-        
         if not paragraphs:
             return None
         
-        # Clean and combine
-        cleaned_paragraphs = [clean_text(p.text) for p in paragraphs]
+        cleaned = [clean_text(p.text) for p in paragraphs]
+        full_text = " ".join(cleaned)
         
-        # Join with spaces
-        full_article = " ".join(cleaned_paragraphs)
+        # Limit length
+        max_chars = 1500
+        if len(full_text) > max_chars:
+            full_text = full_text[:max_chars] + "..."
         
-        # Limit to reasonable length (for token cost)
-        max_chars = 2000
-        if len(full_article) > max_chars:
-            full_article = full_article[:max_chars] + "..."
-        
-        return full_article
+        return full_text
     
-    except requests.exceptions.Timeout:
-        return "❌ Website too slow"
-    except requests.exceptions.ConnectionError:
-        return "❌ No connection"
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        return None
 
-# TEST IT
-article_url = "https://wikipedia.org"
-content = extract_article(article_url)
+def scrape_multiple_links(urls):
+    """Scrape multiple links with rate limiting"""
+    results = []
+    
+    for i, url in enumerate(urls, 1):
+        print(f"\n📍 Processing link {i}/{len(urls)}: {url}")
+        
+        # Extract content
+        content = extract_article(url)
+        
+        if content:
+            print(f"✅ Extracted {len(content)} characters")
+            results.append({
+                "url": url,
+                "content": content,
+                "status": "success"
+            })
+        else:
+            print(f"❌ Could not extract content")
+            results.append({
+                "url": url,
+                "content": None,
+                "status": "failed"
+            })
+        
+        # RATE LIMITING: Wait 2 seconds between requests
+        # Respect the website! Don't hammer it!
+        if i < len(urls):
+            print("⏳ Waiting 2 seconds before next request...")
+            time.sleep(2)
+    
+    return results
 
-if content:
-    print(f"✅ EXTRACTED CONTENT:\n")
-    print(content[:500] + "...\n")  # First 500 chars
-    print(f"📊 Total length: {len(content)} characters")
-    print(f"📊 Ready for Groq: YES")
-else:
-    print("❌ Could not extract article")
+# TEST WITH MULTIPLE LINKS
+urls = [
+    "https://news.ycombinator.com/",
+    "https://example.com",
+    "https://www.python.org/about/"
+]
+
+results = scrape_multiple_links(urls)
+
+print("\n" + "="*50)
+print("📊 SUMMARY:")
+print("="*50)
+
+successful = sum(1 for r in results if r["status"] == "success")
+failed = sum(1 for r in results if r["status"] == "failed")
+
+print(f"✅ Successful: {successful}/{len(urls)}")
+print(f"❌ Failed: {failed}/{len(urls)}")
+
+for r in results:
+    if r["content"]:
+        print(f"\n📄 {r['url']}")
+        print(f"   Preview: {r['content'][:100]}...")
