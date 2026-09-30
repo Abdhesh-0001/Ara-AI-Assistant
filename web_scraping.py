@@ -73,9 +73,9 @@ def scrape_multiple_links(urls):
 
 # TEST WITH MULTIPLE LINKS
 urls = [
-    "https://www.scrapethissite.com/pages/simple/",
+    "https://example.com",
     "https://httpbin.org/html",
-    "https://jsonplaceholder.typicode.com/posts"
+    "https://w3schools.com"
 ]
 
 results = scrape_multiple_links(urls)
