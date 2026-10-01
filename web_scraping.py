@@ -1,97 +1,95 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-import time  # IMPORTANT for rate limiting!
-
+import time
 
 def clean_text(text):
     """Remove extra whitespace"""
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
-def extract_article(url):
-    """Extract main content from article"""
+def extract_article_smart(url):
+    """Try multiple strategies to extract content"""
     try:
         response = requests.get(url, timeout=5)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Find content
-        content = soup.find('article') or soup.find('main') or soup.find('div', class_='content')
-        
-        if not content:
-            return None
-        
-        paragraphs = content.find_all('p')
-        if not paragraphs:
-            return None
-        
-        cleaned = [clean_text(p.text) for p in paragraphs]
-        full_text = " ".join(cleaned)
-        
-        # Limit length
-        max_chars = 1500
-        if len(full_text) > max_chars:
-            full_text = full_text[:max_chars] + "..."
-        
-        return full_text
-    
-    except Exception as e:
-        return None
-
-def scrape_multiple_links(urls):
-    """Scrape multiple links with rate limiting"""
-    results = []
-    
-    for i, url in enumerate(urls, 1):
-        print(f"\n📍 Processing link {i}/{len(urls)}: {url}")
-        
-        # Extract content
-        content = extract_article(url)
-        
+        # STRATEGY 1: Look for article tags
+        content = soup.find('article')
         if content:
-            print(f"✅ Extracted {len(content)} characters")
-            results.append({
-                "url": url,
-                "content": content,
-                "status": "success"
-            })
-        else:
-            print(f"❌ Could not extract content")
-            results.append({
-                "url": url,
-                "content": None,
-                "status": "failed"
-            })
+            paragraphs = content.find_all('p')
+            if paragraphs:
+                cleaned = [clean_text(p.text) for p in paragraphs]
+                return " ".join(cleaned)[:1500]
         
-        # RATE LIMITING: Wait 2 seconds between requests
-        # Respect the website! Don't hammer it!
-        if i < len(urls):
-            print("⏳ Waiting 2 seconds before next request...")
-            time.sleep(2)
+        # STRATEGY 2: Look for main tag
+        content = soup.find('main')
+        if content:
+            paragraphs = content.find_all('p')
+            if paragraphs:
+                cleaned = [clean_text(p.text) for p in paragraphs]
+                return " ".join(cleaned)[:1500]
+        
+        # STRATEGY 3: Look for divs with content class
+        content = soup.find('div', class_=re.compile(r'content|article|body'))
+        if content:
+            paragraphs = content.find_all('p')
+            if paragraphs:
+                cleaned = [clean_text(p.text) for p in paragraphs]
+                return " ".join(cleaned)[:1500]
+        
+        # STRATEGY 4: Just get ALL paragraphs (fallback)
+        all_paragraphs = soup.find_all('p')[1:15]  # Skip first (usually nav), limit to 15
+        if all_paragraphs:
+            cleaned = [clean_text(p.text) for p in all_paragraphs]
+            text = " ".join(cleaned)
+            return text[:1500] if text else None
+        
+        return None
     
-    return results
+    except requests.exceptions.Timeout:
+        return "❌ Timeout"
+    except requests.exceptions.ConnectionError:
+        return "❌ No connection"
+    except Exception as e:
+        return f"❌ Error: {str(e)}"
 
-# TEST WITH MULTIPLE LINKS
-urls = [
-    "https://example.com",
-    "https://httpbin.org/html",
-    "https://w3schools.com"
+def analyze_website(url):
+    """Analyze which strategy worked"""
+    content = extract_article_smart(url)
+    
+    if content and not content.startswith("❌"):
+        return {
+            "url": url,
+            "success": True,
+            "length": len(content),
+            "preview": content[:150] + "..."
+        }
+    else:
+        return {
+            "url": url,
+            "success": False,
+            "error": content
+        }
+
+# TEST WITH DIFFERENT WEBSITES
+test_urls = [
+    "https://www.bbc.com/news",
+    "https://www.theguardian.com/us",
+    "https://news.ycombinator.com/"
 ]
 
-results = scrape_multiple_links(urls)
+print("🔍 TESTING DIFFERENT WEBSITES:\n")
 
-print("\n" + "="*50)
-print("📊 SUMMARY:")
-print("="*50)
-
-successful = sum(1 for r in results if r["status"] == "success")
-failed = sum(1 for r in results if r["status"] == "failed")
-
-print(f"✅ Successful: {successful}/{len(urls)}")
-print(f"❌ Failed: {failed}/{len(urls)}")
-
-for r in results:
-    if r["content"]:
-        print(f"\n📄 {r['url']}")
-        print(f"   Preview: {r['content'][:100]}...")
+for url in test_urls:
+    result = analyze_website(url)
+    
+    print(f"URL: {url}")
+    if result["success"]:
+        print(f"✅ SUCCESS - Length: {result['length']} chars")
+        print(f"Preview: {result['preview']}\n")
+    else:
+        print(f"❌ FAILED - {result['error']}\n")
+    
+    time.sleep(1)  # Rate limit
