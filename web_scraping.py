@@ -121,7 +121,7 @@ for r in results:
         print(f"   Length: {len(r['content'])} chars")
         print(f"   Preview: {r['content'][:100]}...")
 
-from ArticleScraper import ArticleScraper  # Your class from Exercise 11
+  
 
 def test_scraper_for_ara():
     """Test if scraper works for Ara"""
