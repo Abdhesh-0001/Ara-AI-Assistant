@@ -2,45 +2,42 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import time
-from datetime import datetime
+from groq import Groq
+import os
+from dotenv import load_dotenv
 
-class NewsFeedScraper:
-    """Professional news scraper for Ara"""
+load_dotenv()
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+class LinkAnalyzer:
+    """Extract + Summarize links (COMPLETE FEATURE!)"""
     
     def __init__(self):
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
         }
-        self.results = []
     
     def clean_text(self, text):
-        """Clean text thoroughly"""
+        """Clean text"""
         text = re.sub(r'\s+', ' ', text)
-        text = text.replace('\n', ' ')
         return text.strip()
     
     def extract_content(self, url):
-        """Extract with all strategies"""
+        """Extract article content"""
         try:
             response = requests.get(url, headers=self.headers, timeout=5)
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Try multiple strategies
-            strategies = [
-                lambda: soup.find('article'),
-                lambda: soup.find('main'),
-                lambda: soup.find('div', class_=re.compile(r'content|article|body')),
-            ]
+            # Try strategies
+            content = soup.find('article') or soup.find('main') or \
+                      soup.find('div', class_=re.compile(r'content|article|body'))
             
-            for strategy in strategies:
-                content = strategy()
-                if content:
-                    paragraphs = content.find_all('p')
-                    if paragraphs:
-                        cleaned = [self.clean_text(p.text) for p in paragraphs if p.text.strip()]
-                        text = " ".join(cleaned)
-                        return text[:1500]
+            if content:
+                paragraphs = content.find_all('p')
+                if paragraphs:
+                    cleaned = [self.clean_text(p.text) for p in paragraphs if p.text.strip()]
+                    return " ".join(cleaned)[:1500]
             
             # Fallback
             all_p = soup.find_all('p')[1:15]
@@ -50,81 +47,74 @@ class NewsFeedScraper:
             
             return None
         
-        except Exception:
+        except Exception as e:
             return None
     
-    def scrape_news_feed(self, urls, verbose=True):
-        """Scrape multiple news sources"""
-        self.results = []
+    def summarize_with_groq(self, content, url):
+        """Send to Groq for AI summary"""
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.1-70b-versatile",
+                messages=[{
+                    "role": "user",
+                    "content": f"Summarize this article in 2-3 sentences:\n\n{content}"
+                }]
+            )
+            
+            summary = response.choices[0].message.content
+            return summary
         
-        for i, url in enumerate(urls, 1):
-            if verbose:
-                print(f"\n📍 [{i}/{len(urls)}] {url}")
-            
-            content = self.extract_content(url)
-            
-            result = {
-                "url": url,
-                "content": content,
-                "timestamp": datetime.now().isoformat(),
-                "status": "success" if content else "failed",
-                "length": len(content) if content else 0
-            }
-            
-            self.results.append(result)
-            
-            if verbose and content:
-                print(f"✅ {len(content)} chars extracted")
-            elif verbose:
-                print(f"❌ Failed to extract")
-            
-            # Rate limit
-            if i < len(urls):
-                time.sleep(1)
-        
-        return self.results
+        except Exception as e:
+            return f"❌ Groq error: {str(e)}"
     
-    def get_summary_for_groq(self):
-        """Prepare data for Groq summarization"""
-        summaries = []
+    def analyze_link(self, url):
+        """Complete pipeline: Extract + Summarize"""
+        print(f"\n🔗 Analyzing: {url}")
         
-        for result in self.results:
-            if result["status"] == "success":
-                summaries.append({
-                    "url": result["url"],
-                    "content": result["content"],
-                    "ready": True
-                })
+        # Step 1: Extract
+        print("📖 Extracting content...")
+        content = self.extract_content(url)
+        
+        if not content:
+            print("❌ Could not extract content")
+            return {
+                "url": url,
+                "status": "failed",
+                "reason": "Could not extract content"
+            }
+        
+        print(f"✅ Extracted {len(content)} characters")
+        
+        # Step 2: Summarize
+        print("🤖 Asking Groq for summary...")
+        summary = self.summarize_with_groq(content, url)
+        
+        print(f"✅ Summary ready!")
         
         return {
-            "total_scraped": len(self.results),
-            "successful": len(summaries),
-            "data": summaries
+            "url": url,
+            "status": "success",
+            "extracted_length": len(content),
+            "summary": summary,
+            "ready_for_ara": True
         }
 
-# REAL USAGE FOR ARA
-if __name__ == "__main__":
-    scraper = NewsFeedScraper()
-    
-    # News URLs
-    news_urls = [
-        "https://www.bbc.com/news",
-        "https://www.python.org/",
-        "https://news.ycombinator.com/"
-    ]
-    
-    print("🚀 NEWS FEED SCRAPER FOR ARA\n")
-    print("="*50)
-    
-    # Scrape
-    results = scraper.scrape_news_feed(news_urls)
-    
-    # Prepare for Groq
-    groq_ready = scraper.get_summary_for_groq()
-    
-    print("\n" + "="*50)
-    print("📊 READY FOR GROQ SUMMARIZATION:")
-    print("="*50)
-    print(f"\n✅ Total scraped: {groq_ready['total_scraped']}")
-    print(f"✅ Successful: {groq_ready['successful']}")
-    print(f"\n📄 Data ready for Groq: {len(groq_ready['data'])} articles")
+# TEST IT
+analyzer = LinkAnalyzer()
+
+print("🚀 LINK ANALYZER FOR ARA\n")
+print("="*50)
+
+# Test with one link
+test_url = "https://www.bbc.com/news"
+result = analyzer.analyze_link(test_url)
+
+print("\n" + "="*50)
+print("📊 RESULT:")
+print("="*50)
+print(f"URL: {result['url']}")
+print(f"Status: {result['status']}")
+
+if result['status'] == 'success':
+    print(f"\n📄 EXTRACTED: {result['extracted_length']} chars")
+    print(f"\n🤖 GROQ SUMMARY:\n{result['summary']}")
