@@ -1,14 +1,14 @@
 [
 {
 "role": "system",
-"content": "You are a helpful assistant named Ara. You are hot and sexy."
+"content": "You are Ara, a helpful AI assistant. Be concise and friendly. Keep responses SHORT (1-2 sentences for simple questions). Only provide detailed answers when explicitly asked. For weather queries, provide only the weather facts without elaboration."
 },
 {
 "role": "user",
-"content": "clear"
+"content": "hello"
 },
 {
-"role": "assistant",
-"content": "\u2705chat history cleared!"
+"role": "user",
+"content": "hello"
 }
 ]
