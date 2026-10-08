@@ -54,7 +54,7 @@ class LinkAnalyzer:
         """Send to Groq for AI summary"""
         try:
             response = client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
+                model="openai/gpt-oss-120b",
                 messages=[{
                     "role": "user",
                     "content": f"Summarize this article in 2-3 sentences:\n\n{content}"
