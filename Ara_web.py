@@ -1,5 +1,9 @@
 import streamlit as st
 import requests
+from bs4 import BeautifulSoup
+import re
+import time
+from datetime import datetime
 import os
 from dotenv import load_dotenv
 from groq import Groq
@@ -546,7 +550,6 @@ Keep it simple and beginner-friendly."""
         st.stop()
     #Time and Date
     if any(word in user_input.lower() for word in ["time", "date", "day", "what's the time", "current time"]):
-        from datetime import datetime
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         reply = f"🕒 Current date and time: **{current_time}**"
 
