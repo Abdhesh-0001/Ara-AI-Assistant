@@ -28,6 +28,8 @@ class LinkAnalyzer:
     
     def extract_content(self, url):
         """Extract article content"""
+        if 'youtube' in url or 'youtu.be' in url:
+            reply = "❌ YouTube blocks automated access. Try other links!"
         try:
             response = requests.get(url, headers=self.headers, timeout=5)
             response.raise_for_status()
@@ -58,7 +60,7 @@ class LinkAnalyzer:
         """Get AI summary"""
         try:
             response = self.client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
+                model="openai/gpt-oss-120b",
                 messages=[{
                     "role": "user",
                     "content": f"Summarize in 2-3 sentences:\n\n{content}"
