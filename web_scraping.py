@@ -10,7 +10,7 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 class LinkAnalyzer:
-    """Extract + Summarize links (COMPLETE FEATURE!)"""
+    """Enhanced - Multiple links + Ara integration ready"""
     
     def __init__(self):
         self.headers = {
@@ -47,74 +47,120 @@ class LinkAnalyzer:
             
             return None
         
-        except Exception as e:
+        except requests.exceptions.Timeout:
+            return None
+        except requests.exceptions.ConnectionError:
+            return None
+        except Exception:
             return None
     
-    def summarize_with_groq(self, content, url):
-        """Send to Groq for AI summary"""
+    def summarize_with_groq(self, content):
+        """Get AI summary"""
         try:
             response = client.chat.completions.create(
-                model="openai/gpt-oss-120b",
+                model="llama-3.1-70b-versatile",
                 messages=[{
                     "role": "user",
-                    "content": f"Summarize this article in 2-3 sentences:\n\n{content}"
+                    "content": f"Summarize in 2-3 sentences:\n\n{content}"
                 }]
             )
-            
-            summary = response.choices[0].message.content
-            return summary
+            return response.choices[0].message.content
         
-        except Exception as e:
-            return f"❌ Groq error: {str(e)}"
+        except Exception:
+            return "❌ Summarization failed"
     
     def analyze_link(self, url):
-        """Complete pipeline: Extract + Summarize"""
-        print(f"\n🔗 Analyzing: {url}")
-        
-        # Step 1: Extract
-        print("📖 Extracting content...")
-        content = self.extract_content(url)
-        
-        if not content:
-            print("❌ Could not extract content")
+        """Analyze single link"""
+        try:
+            # Extract
+            content = self.extract_content(url)
+            
+            if not content:
+                return {
+                    "url": url,
+                    "status": "failed",
+                    "reason": "Could not extract content"
+                }
+            
+            # Summarize
+            summary = self.summarize_with_groq(content)
+            
             return {
                 "url": url,
-                "status": "failed",
-                "reason": "Could not extract content"
+                "status": "success",
+                "content_length": len(content),
+                "summary": summary,
+                "ready_for_ara": True
             }
         
-        print(f"✅ Extracted {len(content)} characters")
+        except Exception as e:
+            return {
+                "url": url,
+                "status": "error",
+                "error": str(e)
+            }
+    
+    def analyze_multiple_links(self, urls, verbose=True):
+        """Analyze MULTIPLE links with rate limiting"""
+        results = []
         
-        # Step 2: Summarize
-        print("🤖 Asking Groq for summary...")
-        summary = self.summarize_with_groq(content, url)
+        for i, url in enumerate(urls, 1):
+            if verbose:
+                print(f"\n📍 [{i}/{len(urls)}] Processing: {url}")
+            
+            result = self.analyze_link(url)
+            results.append(result)
+            
+            if verbose:
+                if result["status"] == "success":
+                    print(f"✅ Success - {result['content_length']} chars")
+                else:
+                    print(f"❌ {result['status']}")
+            
+            # Rate limit
+            if i < len(urls):
+                time.sleep(1)
         
-        print(f"✅ Summary ready!")
+        return results
+    
+    def prepare_for_ara(self, results):
+        """Format for Ara display"""
+        ara_data = []
         
-        return {
-            "url": url,
-            "status": "success",
-            "extracted_length": len(content),
-            "summary": summary,
-            "ready_for_ara": True
-        }
+        for result in results:
+            if result["status"] == "success":
+                ara_data.append({
+                    "url": result["url"],
+                    "summary": result["summary"],
+                    "display": f"📄 **Link Summary:**\n\n{result['summary']}"
+                })
+        
+        return ara_data
 
-# TEST IT
+# TEST MULTIPLE LINKS
 analyzer = LinkAnalyzer()
 
-print("🚀 LINK ANALYZER FOR ARA\n")
+print("🚀 MULTI-LINK ANALYZER FOR ARA\n")
 print("="*50)
 
-# Test with one link
-test_url = "https://www.bbc.com/news"
-result = analyzer.analyze_link(test_url)
+# Multiple URLs
+urls = [
+    "https://www.bbc.com/news",
+    "https://www.python.org/",
+    "https://news.ycombinator.com/"
+]
+
+# Analyze all
+results = analyzer.analyze_multiple_links(urls)
+
+# Prepare for Ara
+ara_ready = analyzer.prepare_for_ara(results)
 
 print("\n" + "="*50)
-print("📊 RESULT:")
+print("📊 READY FOR ARA:")
 print("="*50)
-print(f"URL: {result['url']}")
-print(f"Status: {result['status']}")
+print(f"\n✅ Processed: {len(results)} links")
+print(f"✅ Success: {len(ara_ready)} links")
 
-if result['status'] == 'success':
-    print(f"\n📄 EXTRACTED: {result['extracted_length']} chars")
-    print(f"\n🤖 GROQ SUMMARY:\n{result['summary']}")
+for data in ara_ready:
+    print(f"\n{data['display']}")
