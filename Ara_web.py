@@ -167,6 +167,7 @@ load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+link_analyzer = LinkAnalyzer(client)
 
 # ===== JOKE GENERATOR CLASS =====
 
@@ -359,6 +360,30 @@ if user_input:
 
     search_result = None
     weather_info = None
+
+# 🔗 Link Analysis Feature
+if user_input.startswith('http://') or user_input.startswith('https://'):
+    with st.spinner("🔗 Analyzing link..."):
+        result = link_analyzer.analyze_link(user_input)
+    
+    if result["status"] == "success":
+        reply = f"📄 **Link Summary:**\n\n{result['summary']}"
+    elif result["status"] == "failed":
+        reply = "❌ Could not extract content from this link"
+    else:
+        reply = f"❌ Error: {result['error']}"
+    
+    # Display
+    with st.chat_message("assistant"):
+        st.write(reply)
+    
+    # Save to history
+    st.session_state.messages.append({"role": "user", "content": str(user_input)})
+    st.session_state.messages.append({"role": "assistant", "content": reply})
+    
+    st.stop()
+
+
 # 🎲 Dice roller feature
     if any(word in user_input.lower() for word in ["roll", "dice", "d6", "d20", "d100"]):
         import random
