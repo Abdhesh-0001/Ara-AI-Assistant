@@ -362,26 +362,27 @@ if user_input:
     weather_info = None
 
 # 🔗 Link Analysis Feature
-if user_input.startswith('http://') or user_input.startswith('https://'):
-    with st.spinner("🔗 Analyzing link..."):
-        result = link_analyzer.analyze_link(user_input)
+if user_input and isinstance(user_input, str):
+    if user_input.startswith('http://') or user_input.startswith('https://'):
+        with st.spinner("🔗 Analyzing link..."):
+            result = link_analyzer.analyze_link(user_input)
     
-    if result["status"] == "success":
-        reply = f"📄 **Link Summary:**\n\n{result['summary']}"
-    elif result["status"] == "failed":
-        reply = "❌ Could not extract content from this link"
-    else:
-        reply = f"❌ Error: {result['error']}"
+        if result["status"] == "success":
+            reply = f"📄 **Link Summary:**\n\n{result['summary']}"
+        elif result["status"] == "failed":
+            reply = "❌ Could not extract content from this link"
+        else:
+            reply = f"❌ Error: {result['error']}"
     
-    # Display
-    with st.chat_message("assistant"):
-        st.write(reply)
+        # Display
+        with st.chat_message("assistant"):
+            st.write(reply)
     
-    # Save to history
-    st.session_state.messages.append({"role": "user", "content": str(user_input)})
-    st.session_state.messages.append({"role": "assistant", "content": reply})
+        # Save to history
+        st.session_state.messages.append({"role": "user", "content": str(user_input)})
+        st.session_state.messages.append({"role": "assistant", "content": reply})
     
-    st.stop()
+        st.stop()
 
 
 # 🎲 Dice roller feature
