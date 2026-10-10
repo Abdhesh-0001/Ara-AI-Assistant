@@ -9,6 +9,90 @@ from dotenv import load_dotenv
 from groq import Groq
 from duckduckgo_search import DDGS
 # Add this RIGHT AFTER the imports section
+
+# ===== LINK ANALYZER CLASS =====
+
+class LinkAnalyzer:
+    """Extract + Summarize links for Ara"""
+    
+    def __init__(self, groq_client):
+        self.client = groq_client
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        }
+    
+    def clean_text(self, text):
+        """Clean text"""
+        text = re.sub(r'\s+', ' ', text)
+        return text.strip()
+    
+    def extract_content(self, url):
+        """Extract article content"""
+        try:
+            response = requests.get(url, headers=self.headers, timeout=5)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Try strategies
+            content = soup.find('article') or soup.find('main') or \
+                      soup.find('div', class_=re.compile(r'content|article|body'))
+            
+            if content:
+                paragraphs = content.find_all('p')
+                if paragraphs:
+                    cleaned = [self.clean_text(p.text) for p in paragraphs if p.text.strip()]
+                    return " ".join(cleaned)[:1500]
+            
+            # Fallback
+            all_p = soup.find_all('p')[1:15]
+            if all_p:
+                cleaned = [self.clean_text(p.text) for p in all_p if p.text.strip()]
+                return " ".join(cleaned)[:1500]
+            
+            return None
+        
+        except Exception:
+            return None
+    
+    def summarize_with_groq(self, content):
+        """Get AI summary"""
+        try:
+            response = self.client.chat.completions.create(
+                model="llama-3.1-70b-versatile",
+                messages=[{
+                    "role": "user",
+                    "content": f"Summarize in 2-3 sentences:\n\n{content}"
+                }]
+            )
+            return response.choices[0].message.content
+        except Exception:
+            return "❌ Summarization failed"
+    
+    def analyze_link(self, url):
+        """Analyze single link"""
+        try:
+            content = self.extract_content(url)
+            
+            if not content:
+                return {
+                    "status": "failed",
+                    "reason": "Could not extract content"
+                }
+            
+            summary = self.summarize_with_groq(content)
+            
+            return {
+                "status": "success",
+                "summary": summary
+            }
+        
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e)
+            }
+
+# ===== END LINK ANALYZER CLASS =====
 # ===== RIDDLE GENERATOR CLASS =====
 
 class RiddleGenerator:
