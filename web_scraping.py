@@ -58,7 +58,7 @@ class LinkAnalyzer:
         """Get AI summary"""
         try:
             response = client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
+                model="openai/gpt-oss-120b",
                 messages=[{
                     "role": "user",
                     "content": f"Summarize in 2-3 sentences:\n\n{content}"
