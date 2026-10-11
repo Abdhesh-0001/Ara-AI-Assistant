@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
+from youtube_transcript_api import YouTubeTranscriber
 import re
 import time
 from datetime import datetime
@@ -13,7 +14,7 @@ from duckduckgo_search import DDGS
 # ===== LINK ANALYZER CLASS =====
 
 class LinkAnalyzer:
-    """Extract + Summarize links for Ara"""
+    """Extract + Summarize links for Ara (including YouTube!)"""
     
     def __init__(self, groq_client):
         self.client = groq_client
@@ -25,11 +26,37 @@ class LinkAnalyzer:
         """Clean text"""
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
+
+    def extract_youtube_transcript(self, url):
+        """Extract YouTube link transcript"""
+        try:
+            #Extract video ID from URL
+            video_id = None
+            if 'youtube.com' in url:
+                video_id = url.split('v=')[1].split('&')[0]
+            elif 'youtu.be' in url:
+                video_id = url.split('/')[-1].split('?')[0]
+            if not video_id:
+                return None
+            # Get transcript
+            from youtube_transcript_api import YoutubeTranscriptFetcher
+
+            try:
+                transcript_list = YoutubeTranscriptFetcher().fetch_transcript(video_id)
+                transcript_text = " ".join([item['text'] for item in transcript_list])
+                return transcript_text[:1500]
+            except Exception:
+                return None
+        except Exception:
+            return None
+        
+
+
+        
     
     def extract_content(self, url):
         """Extract article content"""
-        if 'youtube' in url or 'youtu.be' in url:
-            return"❌ YouTube blocks automated access. Try other links!"
+
         try:
             response = requests.get(url, headers=self.headers, timeout=5)
             response.raise_for_status()
@@ -64,23 +91,31 @@ class LinkAnalyzer:
                 messages=[{
                     "role": "user",
                     "content": f"Summarize in 2-3 sentences:\n\n{content}"
-                }]
+                }],
+                max_tokens = 500
             )
             return response.choices[0].message.content
         except Exception:
             return "❌ Summarization failed"
     
     def analyze_link(self, url):
-        """Analyze single link"""
+        """Analyze ANY LINK - YouTube or Regular"""
+
         try:
-            content = self.extract_content(url)
+            # Check if YouTube
+            if 'youtube' in url or 'youtube.be' in url:
+                content = self.extract_youtube_transcript(url)
+
+            else:
+                # Regular Website    
+                content = self.extract_content(url)
             
-            if not content:
-                return {
-                    "status": "failed",
-                    "reason": "Could not extract content"
+                if not content:
+                    return {
+                        "status": "failed",
+                        "reason": "Could not extract content"
                 }
-            
+            # summarize
             summary = self.summarize_with_groq(content)
             
             return {
@@ -363,18 +398,27 @@ if user_input:
     search_result = None
     weather_info = None
 
-# 🔗 Link Analysis Feature
+# 🔗 Link Analysis Feature(YouTube + Websites)
 if user_input and isinstance(user_input, str):
     if user_input.startswith('http://') or user_input.startswith('https://'):
-        with st.spinner("🔗 Analyzing link..."):
-            result = link_analyzer.analyze_link(user_input)
-    
-        if result["status"] == "success":
-            reply = f"📄 **Link Summary:**\n\n{result['summary']}"
-        elif result["status"] == "failed":
-            reply = "❌ Could not extract content from this link"
+        # Check for currently unsupported platforms
+        unsupported = ['facebook', 'twitter', 'instagram', 'tiktok']
+        is_unsupported= any(keyword in user_input.lower() for keyword in unsupported)
+
+        if is_unsupported:
+            platform = next((kw for kw in unsupported if kw in user_input.lower()), "this site")
+            reply = f"📺 {platform.upper()} not supported yet. Try YouTube or a news link!"
         else:
-            reply = f"❌ Error: {result['error']}"
+            # Try to analyze (YouTube or Websites)    
+            with st.spinner("🔗 Analyzing link..."):
+                result = link_analyzer.analyze_link(user_input)
+    
+            if result["status"] == "success":
+                reply = f"📄 **Link Summary:**\n\n{result['summary']}"
+            elif result["status"] == "failed":
+                reply = f"❌ {result['reason']}"
+            else:
+                reply = f"❌ Error: {result['error']}"
     
         # Display
         with st.chat_message("assistant"):
