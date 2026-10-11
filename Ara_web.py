@@ -28,26 +28,31 @@ class LinkAnalyzer:
         return text.strip()
 
     def extract_youtube_transcript(self, url):
-        """Extract YouTube link transcript"""
+        """Extract YouTube video transcript"""
         try:
-            #Extract video ID from URL
+            from youtube_transcript_api import YouTubeTranscriptApi
+        
+            # Extract video ID
             video_id = None
+        
             if 'youtube.com' in url:
                 video_id = url.split('v=')[1].split('&')[0]
             elif 'youtu.be' in url:
                 video_id = url.split('/')[-1].split('?')[0]
+        
             if not video_id:
                 return None
+        
             # Get transcript
-            from youtube_transcript_api import YoutubeTranscriptFetcher
-
             try:
-                transcript_list = YoutubeTranscriptFetcher().fetch_transcript(video_id)
-                transcript_text = " ".join([item['text'] for item in transcript_list])
-                return transcript_text[:1500]
-            except Exception:
+                transcript = YouTubeTranscriptApi.get_transcript(video_id)
+                text = " ".join([item['text'] for item in transcript])
+                return text[:1500]
+            except Exception as e:
+                # Video has no captions
                 return None
-        except Exception:
+    
+        except Exception as e:
             return None
         
 
