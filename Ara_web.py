@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
-from youtube_transcript_api import YouTubeTranscriber
+from youtube_transcript_api import YouTubeTranscriberApi
 import re
 import time
 from datetime import datetime
