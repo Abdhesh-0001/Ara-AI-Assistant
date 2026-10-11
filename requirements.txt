@@ -3,3 +3,5 @@ groq
 requests
 python-dotenv
 duckduckgo-search
+beautifulsoup4
+youtube_transcript_api
