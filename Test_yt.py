@@ -1,11 +1,15 @@
 from youtube_transcript_api import YouTubeTranscriptApi
-
+from youtube_transcript_api._errors import IpBlocked, TranscriptsDisabled,NoTranscriptFound
 video_id = "5AM5nVZZxfE"
 
-try:
-    api = YouTubeTranscriptApi()
-    transcript = api.fetch(video_id)
-    print(f"SUCCESS! Got {len(transcript)} snippets")
-    print(transcript[0].text)
-except Exception as e:
-    print(f"ERROR: {type(e).__name__}: {e}")
+def extract_youtube_transcript(video_id):
+    try:
+        api = YouTubeTranscriptApi()
+        transcript_list = api.fetch(video_id)
+        return " ".join([item.text for item in transcript_list])
+    except IpBlocked:
+        return "⚠️ YouTube is temporarily blocking transcript requests from this network. Please try again later or use manual notes."
+    except (TranscriptsDisabled, NoTranscriptFound):
+        return "⚠️ Transcripts are disabled or unavailable for this video."
+    except Exception as e:
+        return f"❌ Error retrieving transcript: {str(e)}"
