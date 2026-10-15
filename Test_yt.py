@@ -1,6 +1,5 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import IpBlocked, TranscriptsDisabled,NoTranscriptFound
-video_id = "5AM5nVZZxfE"
 
 def extract_youtube_transcript(video_id):
     try:
