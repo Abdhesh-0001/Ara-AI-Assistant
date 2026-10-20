@@ -104,7 +104,7 @@ class LinkAnalyzer:
         try:
 
             # Check if YouTube
-            is_youtube = self.get_youtube_id(url) 
+            is_youtube = bool(self.get_youtube_id(url))
             content = self.extract_youtube_transcript(url) if is_youtube else self.extract_content(url)
             if not content or not content.strip():
                 return {"status": "failed", "reason": "Could not get text from this link"}
