@@ -27,25 +27,25 @@ class LinkAnalyzer:
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
 
+    
+    
+
+    def get_youtube_id(self,url):
+        YT_ID_RE = re.compile(r'(?:v=|youtu\.be/|/live/|/shorts/|/embed/)([A-Za-z0-9_-]{11})')
+       
+        match = YT_ID_RE.search(url)
+        return match.group(1) if match else None
+
     def extract_youtube_transcript(self, url):
-        """Extract YouTube transcript using youtube-transcript-api 1.x"""
         try:
             from youtube_transcript_api import YouTubeTranscriptApi
-
-            video_id = None
-            if 'youtube.com' in url and 'v=' in url:
-                ideo_id = url.split('v=')[1].split('&')[0]
-            elif 'youtu.be/' in url:
-                video_id = url.split('youtu.be/')[1].split('?')[0]
-
+            video_id = self.get_youtube_id(url) #Use Self here
             if not video_id:
                 return None
-
             api = YouTubeTranscriptApi()
             transcript = api.fetch(video_id)
             text = " ".join(snippet.text for snippet in transcript)
-            return text[:1500]
-
+            return text[:1500] if text.strip() else None
         except Exception as e:
             print(f"YouTube error: {type(e).__name__}: {e}")
             return None
@@ -100,21 +100,15 @@ class LinkAnalyzer:
     
     def analyze_link(self, url):
         """Analyze ANY LINK - YouTube or Regular"""
-
+    
         try:
-            # Check if YouTube
-            if 'youtube' in url or 'youtube.be' in url:
-                content = self.extract_youtube_transcript(url)
 
-            else:
-                # Regular Website    
-                content = self.extract_content(url)
-            
-                if not content:
-                    return {
-                        "status": "failed",
-                        "reason": "Could not extract content"
-                }
+            # Check if YouTube
+            is_youtube = self.get_youtube_id(url) 
+            content = self.extract_youtube_transcript(url) if is_youtube else self.extract_content(url)
+            if not content or not content.strip():
+                return {"status": "failed", "reason": "Could not get text from this link"}
+
             # summarize
             summary = self.summarize_with_groq(content)
             
