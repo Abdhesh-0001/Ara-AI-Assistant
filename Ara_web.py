@@ -92,7 +92,7 @@ class LinkAnalyzer:
                     "role": "user",
                     "content": f"Summarize in 2-3 sentences:\n\n{content}"
                 }],
-                max_tokens = 500
+                max_tokens = 3000
             )
             return response.choices[0].message.content
         except Exception:
