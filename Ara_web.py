@@ -21,12 +21,48 @@ class LinkAnalyzer:
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
         }
+
     
     def clean_text(self, text):
         """Clean text"""
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
+    
 
+
+    def summarize_long_transcript(self, snippets, max_chunks=10):
+        """Map-reduce summary: summarize each chunk, then summarize the summaries"""
+        chunks = chunk_snippets(snippets)[:max_chunks]  # cap to control cost and time
+        MODEL = "openai/gpt-oss-120b"  # use the model string Ara currently uses
+        # Map: one short summary per chunk
+        chunk_summaries = []
+
+        for start, text in chunks:
+            response = self.client.chat.completions.create(
+                model=MODEL,
+                messages=[{
+                    "role": "user",
+                    "content": f"Summarize this part of a video transcript in 2 sentences. "
+                               f"Only use facts from the text.\n\n{text}"
+                }],
+                max_tokens=200
+        )
+            chunk_summaries.append((start, response.choices[0].message.content.strip()))
+
+        # Reduce: combine into one final summary with timestamps
+        numbered = "\n".join(f"[{format_time(start)}] {summary}" for start, summary in chunk_summaries)
+        final = self.client.chat.completions.create(
+            model=MODEL,
+            messages=[{
+                "role": "user",
+                "content": "Below are timestamped summaries of consecutive parts of one video. "
+                       "Write: (1) a 3-sentence overview, (2) 5 key points as bullets, "
+                       "each starting with its timestamp. Use only this information.\n\n"
+                       + numbered
+            }],
+            max_tokens=600
+    )
+        return final.choices[0].message.content.strip()
     
     
 
@@ -105,11 +141,20 @@ class LinkAnalyzer:
 
             # Check if YouTube
             is_youtube = bool(self.get_youtube_id(url))
-            content = self.extract_youtube_transcript(url) if is_youtube else self.extract_content(url)
-            if not content or not content.strip():
-                return {"status": "failed", "reason": "Could not get text from this link"}
+            if is_youtube:
+                video_id = self.get_youtube_id(url)
+                if not video_id:
+                    return {"status": "failed", "reason": "Could not read the YouTube video ID"}
+                snippets = fetch_youtube_snippets(video_id)
+                if not snippets:
+                    return {"status": "failed", "reason": "No transcript found for this video"}
+                summary = self.summarize_long_transcript(snippets)
+                return {"status": "success", "summary": summary}
+            content = self.extract_content(url)
+            if not content:
+                return {"status": "failed", "reason": "Could not extract content from this link"}
 
-            # summarize
+            # Summarize extracted article content.
             summary = self.summarize_with_groq(content)
             
             return {
@@ -122,6 +167,34 @@ class LinkAnalyzer:
                 "status": "error",
                 "error": str(e)
             }
+
+def fetch_youtube_snippets(video_id):
+    """Return the full transcript as snippets with .start (seconds) and .text"""
+    api = YouTubeTranscriptApi()
+    return api.fetch(video_id)
+
+def chunk_snippets(snippets, max_chars=3000):
+    """Group snippets into chunks of about max_chars, keeping each chunk's start time"""
+    chunks = []
+    current, length, chunk_start = [], 0, None
+
+    for s in snippets:
+        if chunk_start is None:
+            chunk_start = s.start
+        current.append(s.text)
+        length += len(s.text) + 1
+        if length >= max_chars:
+            chunks.append((chunk_start, " ".join(current)))
+            current, length, chunk_start = [], 0, None
+
+    if current:
+        chunks.append((chunk_start, " ".join(current)))
+    return chunks
+
+def format_time(seconds):
+    m, s = divmod(int(seconds), 60)
+    return f"{m}:{s:02d}"
+        
 
 # ===== END LINK ANALYZER CLASS =====
 # ===== RIDDLE GENERATOR CLASS =====
