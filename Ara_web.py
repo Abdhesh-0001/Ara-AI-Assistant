@@ -36,7 +36,7 @@ class LinkAnalyzer:
         MODEL = "openai/gpt-oss-120b"  # use the model string Ara currently uses
         # Map: one short summary per chunk
         chunk_summaries = []
-
+        print(f"[chunk @ {format_time(start)}] {len(text)} chars: {text[:150]!r}")
         for start, text in chunks:
             response = self.client.chat.completions.create(
                 model=MODEL,
