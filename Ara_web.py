@@ -31,38 +31,37 @@ class LinkAnalyzer:
 
 
     def summarize_long_transcript(self, snippets, max_chunks=10):
-        """Map-reduce summary: summarize each chunk, then summarize the summaries"""
-        chunks = chunk_snippets(snippets)[:max_chunks]  # cap to control cost and time
-        MODEL = "openai/gpt-oss-120b"  # use the model string Ara currently uses
-        # Map: one short summary per chunk
-        chunk_summaries = []
+        chunks = chunk_snippets(snippets)[:max_chunks]
         
+        # Short video: one call, no map step
+        full_text = " ".join(s.text for s in snippets)
+        if len(full_text) <= 6000:
+            return self._summarize_text(full_text)
+
+        # Long video: summarize each chunk, keeping timestamps as data
+        parts = []
+    
         for start, text in chunks:
-            response = self.client.chat.completions.create(
-                model=MODEL,
-                messages=[{
-                    "role": "user",
-                    "content": f"Summarize this part of a video transcript in 2 sentences. "
-                               f"Only use facts from the text.\n\n{text}"
-                }],
-                max_tokens=200
-        )
-            chunk_summaries.append((start, response.choices[0].message.content.strip()))
-            print(f"[chunk @ {format_time(start)}] {len(text)} chars: {text[:150]!r}")
-        # Reduce: combine into one final summary with timestamps
-        numbered = "\n".join(f"[{format_time(start)}] {summary}" for start, summary in chunk_summaries)
-        final = self.client.chat.completions.create(
-            model=MODEL,
-            messages=[{
-                "role": "user",
-                "content": "Below are timestamped summaries of consecutive parts of one video. "
-                       "Write: (1) a 3-sentence overview, (2) 5 key points as bullets, "
-                       "each starting with its timestamp. Use only this information.\n\n"
-                       + numbered
-            }],
-            max_tokens=600
+            summary = self._summarize_text(text, "Summarize this part of a video in 2 sentences. Use only facts from the text.")
+            parts.append(f"[{format_time(start)}] {summary}")
+
+        combined = "\n".join(parts)
+        print(f"[chunk @ {format_time(start)}] {len(text)} chars: {text[:150]!r}")
+        return self._summarize_text(
+            combined,
+            "These are timestamped summaries of consecutive parts of one video. "
+            "Write a 3-sentence overview, then list the key points. "
+            "Copy each timestamp exactly as given. Do not invent timestamps or content."
     )
-        return final.choices[0].message.content.strip()
+
+    def _summarize_text(self, text, instruction="Summarize this video transcript in 3 sentences, then give 5 key points. Use only the text."):
+        MODEL = "openai/gpt-oss-120b"  # use the model string Ara currently uses
+        response = self.client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": f"{instruction}\n\n{text}"}],
+            max_tokens=600,
+    )
+        return response.choices[0].message.content.strip()
     
     
 
@@ -171,6 +170,20 @@ class LinkAnalyzer:
 def fetch_youtube_snippets(video_id):
     """Return the full transcript as snippets with .start (seconds) and .text"""
     api = YouTubeTranscriptApi()
+    from youtube_transcript_api import (
+        TranscriptsDisabled, NoTranscriptFound, RequestBlocked, VideoUnavailable
+)
+
+    try:
+        snippets = fetch_youtube_snippets(video_id)
+    except TranscriptsDisabled:
+        return {"status": "failed", "reason": "This video has captions turned off."}
+    except NoTranscriptFound:
+        return {"status": "failed", "reason": "No English captions found for this video."}
+    except RequestBlocked:
+        return {"status": "failed", "reason": "YouTube blocks transcripts from this server. Try running Ara locally."}
+    except VideoUnavailable:
+        return {"status": "failed", "reason": "This video is unavailable."}   
     return api.fetch(video_id)
 
 def chunk_snippets(snippets, max_chars=3000):
