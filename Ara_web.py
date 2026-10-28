@@ -170,7 +170,7 @@ class LinkAnalyzer:
 def fetch_youtube_snippets(video_id):
     """Return the full transcript as snippets with .start (seconds) and .text"""
     api = YouTubeTranscriptApi()
-    
+    return api.fetch(video_id)
     from youtube_transcript_api import (
         TranscriptsDisabled, NoTranscriptFound, RequestBlocked, VideoUnavailable
 )
