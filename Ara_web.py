@@ -185,7 +185,7 @@ def fetch_youtube_snippets(video_id):
         return {"status": "failed", "reason": "YouTube blocks transcripts from this server. Try running Ara locally."}
     except VideoUnavailable:
         return {"status": "failed", "reason": "This video is unavailable."}   
-    
+    return api.fetch(video_id)
 
 def chunk_snippets(snippets, max_chars=3000):
     """Group snippets into chunks of about max_chars, keeping each chunk's start time"""
