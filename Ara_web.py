@@ -30,7 +30,7 @@ class LinkAnalyzer:
     
 
 
-    def summarize_long_transcript(self, snippets, max_chunks=10):
+    def summarize_long_transcript(self, snippets, max_chunks):
         chunks = chunk_snippets(snippets)[:max_chunks]
         
         # Short video: one call, no map step
@@ -42,11 +42,12 @@ class LinkAnalyzer:
         parts = []
     
         for start, text in chunks:
+            print(f"[chunk @ {format_time(start)}] {len(text)} chars: {text[:150]!r}")
             summary = self._summarize_text(text, "Summarize this part of a video in 2 sentences. Use only facts from the text.")
             parts.append(f"[{format_time(start)}] {summary}")
 
         combined = "\n".join(parts)
-        print(f"[chunk @ {format_time(start)}] {len(text)} chars: {text[:150]!r}")
+        
         return self._summarize_text(
             combined,
             "These are timestamped summaries of consecutive parts of one video. "
@@ -187,7 +188,7 @@ def fetch_youtube_snippets(video_id):
         return {"status": "failed", "reason": "This video is unavailable."}   
     
 
-def chunk_snippets(snippets, max_chars=3000):
+def chunk_snippets(snippets, max_chars=12000):
     """Group snippets into chunks of about max_chars, keeping each chunk's start time"""
     chunks = []
     current, length, chunk_start = [], 0, None
