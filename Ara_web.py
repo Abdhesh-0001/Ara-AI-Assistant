@@ -30,7 +30,7 @@ class LinkAnalyzer:
     
 
 
-    def summarize_long_transcript(self, snippets):
+    def summarize_long_transcript(self, snippets,lang):
         chunks = chunk_snippets(snippets)
         
         # Short video: one call, no map step
@@ -55,7 +55,10 @@ class LinkAnalyzer:
             "Copy each timestamp exactly as given. Do not invent timestamps or content."
     )
 
-    def _summarize_text(self, text, instruction="Summarize this video transcript in 3 sentences, then give 5 key points. Use only the text."):
+    def _summarize_text(self, text, instruction="...", lang="en"):
+        if lang != "en":
+            instruction = "The transcript is in a language other than English. Write the summary in English.\n" + instruction
+        ...
         MODEL = "openai/gpt-oss-120b"  # use the model string Ara currently uses
         response = self.client.chat.completions.create(
             model=MODEL,
@@ -146,6 +149,7 @@ class LinkAnalyzer:
                 if not video_id:
                     return {"status": "failed", "reason": "Could not read the YouTube video ID"}
                 snippets = fetch_youtube_snippets(video_id)
+
                 if not snippets:
                     return {"status": "failed", "reason": "No transcript found for this video"}
                 summary = self.summarize_long_transcript(snippets)
@@ -178,11 +182,7 @@ def fetch_youtube_snippets(video_id):
         t = transcript_list.find_transcript(['en'])
     except NoTranscriptFound:
         t = next(iter(transcript_list))   # e.g. Hindi auto-generated
-    return t.fetch(), t.language_code   
-def _summarize_text(self, text, instruction="...", lang="en"):
-    if lang != "en":
-        instruction = "The transcript is in a language other than English. Write the summary in English.\n" + instruction
-    ...    
+    return t.fetch(), t.language_code       
 
 def chunk_snippets(snippets, max_chars=12000):
     """Group snippets into chunks of about max_chars, keeping each chunk's start time"""
