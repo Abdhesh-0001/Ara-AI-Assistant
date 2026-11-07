@@ -30,7 +30,7 @@ class LinkAnalyzer:
     
 
 
-    def summarize_long_transcript(self, snippets,lang="en"):
+    def summarize_long_transcript(self, snippets):
         chunks = chunk_snippets(snippets)
         
         # Short video: one call, no map step
