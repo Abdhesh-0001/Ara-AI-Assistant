@@ -168,25 +168,21 @@ class LinkAnalyzer:
                 "error": str(e)
             }
 
-def fetch_youtube_snippets(video_id):
-    """Return the full transcript as snippets with .start (seconds) and .text"""
-    api = YouTubeTranscriptApi()
-    return api.fetch(video_id)
-    from youtube_transcript_api import (
-        TranscriptsDisabled, NoTranscriptFound, RequestBlocked, VideoUnavailable
-)
+from youtube_transcript_api import NoTranscriptFound
 
+def fetch_youtube_snippets(video_id):
+    """Return (snippets, language_code). Prefer English, else any available transcript."""
+    api = YouTubeTranscriptApi()
+    transcript_list = api.list(video_id)
     try:
-        snippets = fetch_youtube_snippets(video_id)
-    except TranscriptsDisabled:
-        return {"status": "failed", "reason": "This video has captions turned off."}
+        t = transcript_list.find_transcript(['en'])
     except NoTranscriptFound:
-        return {"status": "failed", "reason": "No English captions found for this video."}
-    except RequestBlocked:
-        return {"status": "failed", "reason": "YouTube blocks transcripts from this server. Try running Ara locally."}
-    except VideoUnavailable:
-        return {"status": "failed", "reason": "This video is unavailable."}   
-    
+        t = next(iter(transcript_list))   # e.g. Hindi auto-generated
+    return t.fetch(), t.language_code   
+def _summarize_text(self, text, instruction="...", lang="en"):
+    if lang != "en":
+        instruction = "The transcript is in a language other than English. Write the summary in English.\n" + instruction
+    ...    
 
 def chunk_snippets(snippets, max_chars=12000):
     """Group snippets into chunks of about max_chars, keeping each chunk's start time"""
