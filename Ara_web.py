@@ -182,7 +182,7 @@ def fetch_youtube_snippets(video_id):
         t = transcript_list.find_transcript(['en'])
     except NoTranscriptFound:
         t = next(iter(transcript_list))   # e.g. Hindi auto-generated
-    return t.fetch().to_list(), t.language_code       
+    return list(t.fetch()), t.language_code       
 
 def chunk_snippets(snippets, max_chars=12000):
     """Group snippets into chunks of about max_chars, keeping each chunk's start time"""
