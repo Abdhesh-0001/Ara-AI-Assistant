@@ -148,7 +148,7 @@ class LinkAnalyzer:
                 video_id = self.get_youtube_id(url)
                 if not video_id:
                     return {"status": "failed", "reason": "Could not read the YouTube video ID"}
-                snippets = fetch_youtube_snippets(video_id)
+                snippets, language = fetch_youtube_snippets(video_id)
 
                 if not snippets:
                     return {"status": "failed", "reason": "No transcript found for this video"}
@@ -179,13 +179,10 @@ def fetch_youtube_snippets(video_id):
     api = YouTubeTranscriptApi()
     transcript_list = api.list(video_id)
     try:
-        t = transcript_list.find_transcript(['en'])
+        t = transcript_list.find_transcript(['en',"hi"])
     except NoTranscriptFound:
-        t = next(iter(transcript_list))   # e.g. Hindi auto-generated
-    return {
-    "transcript": t.fetch()[1:],
-    "language": t.language_code
-}
+        t = next(iter(transcript_list))(['en', 'hi'])   # e.g. Hindi auto-generated
+    return t.fetch(),t.language_code
 
 
 def chunk_snippets(snippets, max_chars=12000):
