@@ -183,7 +183,7 @@ def fetch_youtube_snippets(video_id):
     except NoTranscriptFound:
         t = next(iter(transcript_list))   # e.g. Hindi auto-generated
     return {
-    "transcript": t.fetch(),
+    "transcript": t.fetch()[1:],
     "language": t.language_code
 }
 
