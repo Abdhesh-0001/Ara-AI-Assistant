@@ -153,7 +153,7 @@ class LinkAnalyzer:
                 video_id = self.get_youtube_id(url)
                 summary = self.summarize_long_transcript(snippets)
                 content = self.extract_content(url)
-                snippets, str(lang) = fetch_youtube_snippets(video_id)
+                snippets = fetch_youtube_snippets(video_id)
                 # Summarize extracted article content.
                 summary = self.summarize_with_groq(content)
                             
