@@ -164,13 +164,20 @@ class LinkAnalyzer:
             if not content:
                 return {"status": "failed", "reason": "Could not extract content from this link"}
                 # Summarize extracted article content.
-                summary = self.summarize_with_groq(content)
+            summary = self.summarize_with_groq(content)
                             
             return {
                     "status": "success",
                     "summary": summary
                     }
-        
+        except TranscriptsDisabled:
+            return {"status": "failed", "reason": "This video has captions turned off."}
+        except NoTranscriptFound:
+            return {"status": "failed", "reason": "No captions found for this video."}
+        except RequestBlocked:
+            return {"status": "failed", "reason": "YouTube blocks transcripts from this server. Try running Ara locally."}
+        except VideoUnavailable:
+            return {"status": "failed", "reason": "This video is unavailable."}
         except Exception as e:
             return {
                 "status": "error",
