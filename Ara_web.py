@@ -58,7 +58,7 @@ class LinkAnalyzer:
             "Copy each timestamp exactly as given. Do not invent timestamps or content."
     )
 
-    def _summarize_text(self, text, instruction="...", lang="en"):
+    def _summarize_text(self, text, instruction="...", lang=["en","hi"]):
         if lang != "en":
             instruction = "The transcript is in a language other than English. Please ask for what do you want and provide options from which users can select any option .\n" + instruction
         ...
