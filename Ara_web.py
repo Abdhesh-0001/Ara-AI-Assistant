@@ -62,7 +62,7 @@ class LinkAnalyzer:
         if lang != "en":
             instruction = "The transcript is in a language other than English. Please ask for what do you want and provide options from which users can select any option .\n" + instruction
         ...
-        MODEL = "openai/gpt-oss-120b"  # use the model string Ara currently uses
+        MODEL = "llama-3.1-8b-instant"  # use the model string Ara currently uses
         response = self.client.chat.completions.create(
             model=MODEL,
             messages=[{"role": "user", "content": f"{instruction}\n\n{text}"}],
@@ -129,7 +129,7 @@ class LinkAnalyzer:
         """Get AI summary"""
         try:
             response = self.client.chat.completions.create(
-                model="openai/gpt-oss-120b",
+                model="llama-3.1-8b-instant",
                 messages=[{
                     "role": "user",
                     "content": f"Summarize in 3-4 sentences:\n\n{content}"
