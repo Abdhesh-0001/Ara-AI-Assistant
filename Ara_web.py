@@ -60,7 +60,7 @@ class LinkAnalyzer:
 
     def _summarize_text(self, text, instruction="...", lang="en"):
         if lang != "en":
-            instruction = "The transcript is in a language other than English. Write the summary in English.\n" + instruction
+            instruction = "The transcript is in a language other than English. Please ask for what do you want and provide options from which users can select any option .\n" + instruction
         ...
         MODEL = "openai/gpt-oss-120b"  # use the model string Ara currently uses
         response = self.client.chat.completions.create(
