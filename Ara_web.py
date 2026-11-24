@@ -147,28 +147,30 @@ class LinkAnalyzer:
 
         # inside analyze_link, in the YouTube branch:
         try:
+
             # Check if YouTube
             is_youtube = bool(self.get_youtube_id(url))
             if is_youtube:
-                video_id = self.get_youtube_id(url) 
-                snippets= fetch_youtube_snippets(video_id)
-                summary,lang = self.summarize_long_transcript(snippets)
-                content = self.extract_content(url)
+                video_id = self.get_youtube_id(url)
+                if not video_id:
+                    return {"status": "failed", "reason": "Could not read the YouTube video ID"}
+                snippets, language = fetch_youtube_snippets(video_id)
+
+                if not snippets:
+                    return {"status": "failed", "reason": "No transcript found for this video"}
+                summary = self.summarize_long_transcript(snippets)
+                return {"status": "success", "summary": summary}
+            content = self.extract_content(url)
+            if not content:
+                return {"status": "failed", "reason": "Could not extract content from this link"}
                 # Summarize extracted article content.
                 summary = self.summarize_with_groq(content)
                             
-                return {
-                        "status": "success",
-                        "summary": summary
-                        }
-        except TranscriptsDisabled:
-            return {"status": "failed", "reason": "This video has captions turned off."}
-        except NoTranscriptFound:
-            return {"status": "failed", "reason": "No captions found for this video."}
-        except RequestBlocked:
-            return {"status": "failed", "reason": "YouTube blocks transcripts from this server. Try running Ara locally."}
-        except VideoUnavailable:
-            return {"status": "failed", "reason": "This video is unavailable."}
+            return {
+                    "status": "success",
+                    "summary": summary
+                    }
+        
         except Exception as e:
             return {
                 "status": "error",
