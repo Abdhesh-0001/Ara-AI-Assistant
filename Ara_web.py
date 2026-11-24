@@ -169,7 +169,11 @@ class LinkAnalyzer:
             return {"status": "failed", "reason": "YouTube blocks transcripts from this server. Try running Ara locally."}
         except VideoUnavailable:
             return {"status": "failed", "reason": "This video is unavailable."}
-        
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e)
+            }
 
 from youtube_transcript_api import NoTranscriptFound
 
