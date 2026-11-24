@@ -132,9 +132,9 @@ class LinkAnalyzer:
                 model="openai/gpt-oss-120b",
                 messages=[{
                     "role": "user",
-                    "content": f"Summarize in 2-3 sentences:\n\n{content}"
+                    "content": f"Summarize in 5-7 sentences:\n\n{content}"
                 }],
-                max_tokens = 3000
+                max_tokens = 5000
             )
             return response.choices[0].message.content
         except Exception:
@@ -197,7 +197,7 @@ def fetch_youtube_snippets(video_id):
     return t.fetch(),t.language_code
 
 
-def chunk_snippets(snippets, max_chars=12000):
+def chunk_snippets(snippets, max_chars=15000):
     """Group snippets into chunks of about max_chars, keeping each chunk's start time"""
     chunks = []
     current, length, chunk_start = [], 0, None
